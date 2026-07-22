@@ -455,7 +455,7 @@ adminRouter.get("/analytics", wrap(async (req, res) => {
         sessions: (await prisma.analyticsEvent.groupBy({ by: ["sessionId"], where: { type: t, createdAt: { gte: since } } })).length,
       }))
     ),
-    prisma.analyticsEvent.groupBy({ by: ["country"], _count: true, where: { type: "pageview", createdAt: { gte: since }, country: { not: null } }, take: 10 }),
+    prisma.analyticsEvent.groupBy({ by: ["country"], _count: true, where: { type: "pageview", createdAt: { gte: since }, country: { not: null } }, orderBy: { _count: { country: "desc" } }, take: 10 }),
     prisma.analyticsEvent.findMany({ orderBy: { createdAt: "desc" }, take: 30, select: { type: true, path: true, device: true, browser: true, sessionId: true, ip: true, createdAt: true } }),
   ]);
   res.json({

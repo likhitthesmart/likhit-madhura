@@ -72,7 +72,7 @@ contactRouter.post(
         const products = await prisma.product.findMany({
           where: {
             active: true,
-            OR: m.split(/\s+/).filter((w) => w.length > 3).map((w) => ({ name: { contains: w, mode: "insensitive" as const } })),
+            OR: m.replace(/[^\w\s]/g, " ").split(/\s+/).filter((w) => w.length > 3).map((w) => ({ name: { contains: w, mode: "insensitive" as const } })),
           },
           take: 3,
           select: { slug: true, name: true, price: true, unit: true, images: true },
