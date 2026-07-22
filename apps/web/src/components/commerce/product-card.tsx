@@ -7,7 +7,7 @@ import { inr, discountPct, cn } from "@/lib/format";
 import { useCart } from "@/store/cart";
 import { useAuth } from "@/store/auth";
 import { api } from "@/lib/api";
-import { trackEvent } from "./providers";
+import { trackEvent } from "../layout/providers";
 import { useState } from "react";
 
 export function ProductCard({ product }: { product: Product }) {

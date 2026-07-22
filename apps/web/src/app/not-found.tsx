@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LotusMark } from "@/components/logo";
+import { LotusMark } from "@/components/ui/logo";
 
 export default function NotFound() {
   return (

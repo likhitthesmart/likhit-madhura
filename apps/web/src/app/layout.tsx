@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Manrope } from "next/font/google";
 import "./globals.css";
-import { Providers } from "@/components/providers";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { Chatbot } from "@/components/chatbot";
+import { Providers } from "@/components/layout/providers";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
+import { Chatbot } from "@/components/layout/chatbot";
+import { LeadCapture } from "@/components/layout/lead-capture";
 
 const display = Cormorant_Garamond({
   subsets: ["latin"],
@@ -55,6 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main className="min-h-screen">{children}</main>
           <Footer />
           <Chatbot />
+          <LeadCapture />
         </Providers>
       </body>
     </html>

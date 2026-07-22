@@ -8,7 +8,7 @@ import { inr, discountPct, dateLong, cn } from "@/lib/format";
 import { useCart } from "@/store/cart";
 import { useAuth } from "@/store/auth";
 import { usePrefs } from "@/store/prefs";
-import { trackEvent } from "@/components/providers";
+import { trackEvent } from "@/components/layout/providers";
 import Link from "next/link";
 
 function Gallery({ product }: { product: Product }) {

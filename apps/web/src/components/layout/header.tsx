@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Heart, Menu, Mic, Search, ShoppingBag, User, X } from "lucide-react";
-import { Logo } from "./logo";
+import { Logo } from "../ui/logo";
 import { useCart, cartCount } from "@/store/cart";
 import { useAuth } from "@/store/auth";
 import { usePrefs } from "@/store/prefs";
@@ -12,10 +12,10 @@ import { inr, cn } from "@/lib/format";
 
 const nav = [
   { href: "/shop", label: "Shop" },
-  { href: "/shop?category=cold-pressed-oils", label: "Oils" },
-  { href: "/shop?category=millets", label: "Millets" },
   { href: "/about", label: "Our Story" },
-  { href: "/blog", label: "Recipes & Blog" },
+  { href: "/our-heritage", label: "Heritage" },
+  { href: "/blog", label: "Journal" },
+  { href: "/reviews", label: "Reviews" },
   { href: "/contact", label: "Contact" },
 ];
 

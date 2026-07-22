@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { api, type Product } from "@/lib/api";
-import { ProductCard } from "@/components/product-card";
-import { Reveal } from "@/components/motion";
+import { ProductCard } from "@/components/commerce/product-card";
+import { Reveal } from "@/components/ui/motion";
 import { ProductDetail } from "./detail";
 
 export const revalidate = 120;

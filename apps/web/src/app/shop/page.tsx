@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 import { api, type Category, type Product } from "@/lib/api";
-import { ProductCard } from "@/components/product-card";
+import { ProductCard } from "@/components/commerce/product-card";
 import { Filters } from "./filters";
-import { Reveal } from "@/components/motion";
+import { Reveal } from "@/components/ui/motion";
 import Link from "next/link";
 
 export const revalidate = 120;
 
 export const metadata: Metadata = {
-  title: "Shop Organic Staples",
-  description: "Cold pressed oils, A2 ghee, millets, flours and traditional staples — certified organic, made in small batches.",
+  title: "Shop Cold Pressed Oils, A2 Ghee & Organic Millets Online",
+  description:
+    "Buy certified-organic cold pressed oils, bilona A2 desi cow ghee, millets, stone-ground flours, turmeric and healthy biscuits online. Chemical-free, lab tested, made in small batches on South Indian farms. Free shipping above ₹999.",
+  alternates: { canonical: "/shop" },
 };
 
 type Search = Record<string, string | string[] | undefined>;
@@ -94,6 +96,46 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
           )}
         </div>
       </div>
+
+      {!q && !activeCategory && (
+        <section className="mt-20 border-t border-sand pt-12">
+          <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr]">
+            <div className="max-w-2xl">
+              <h2 className="font-display text-3xl text-forest-900">Organic staples, the way they were meant to be</h2>
+              <div className="mt-4 space-y-4 text-sm leading-relaxed text-bark/75">
+                <p>
+                  Every product in the Madhura Naturals pantry is grown without chemicals on rain-fed South Indian farms
+                  and made in small batches. Our <strong>cold pressed oils</strong> are wood-pressed on traditional
+                  ghanis below 40°C, so groundnut, sesame and coconut oil keep their aroma and vitamin E. Our{" "}
+                  <strong>A2 desi cow ghee</strong> is bilona-churned from curd for that unmistakable grainy, golden
+                  finish.
+                </p>
+                <p>
+                  Bringing millets back to the table? Start with <strong>ragi</strong> for calcium, <strong>jowar</strong>{" "}
+                  for everyday rotte, or our rare <strong>brown top millet</strong>. Round out the kitchen with{" "}
+                  <strong>Kapli atta</strong>, stone-ground flours, high-curcumin <strong>Salem turmeric</strong>, and
+                  maida-free <strong>healthy biscuits</strong> the whole family can snack on.
+                </p>
+                <p>
+                  Not sure where to begin? Read <Link href="/our-heritage" className="font-semibold text-forest-800 underline">how everything is made</Link>,
+                  see <Link href="/reviews" className="font-semibold text-forest-800 underline">what other kitchens say</Link>,
+                  or explore <Link href="/blog" className="font-semibold text-forest-800 underline">recipes on our journal</Link>.
+                </p>
+              </div>
+            </div>
+            <div className="rounded-organic border border-sand bg-cream-warm p-7">
+              <h3 className="font-display text-xl text-forest-900">Why shop with us</h3>
+              <ul className="mt-4 space-y-3 text-sm text-bark/75">
+                <li>✓ Certified organic (India Organic / NPOP) & FSSAI licensed</li>
+                <li>✓ Lab tested for adulterants and heavy metals</li>
+                <li>✓ Pressed, churned and milled in small weekly batches</li>
+                <li>✓ Traceable to the farm — pressing date on every pack</li>
+                <li>✓ Free shipping above ₹999 in most zones</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

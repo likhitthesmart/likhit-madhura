@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Leaf, Send, X } from "lucide-react";
 import { api } from "@/lib/api";
 import { inr, cn } from "@/lib/format";
-import { LotusMark } from "./logo";
+import { LotusMark } from "../ui/logo";
 
 interface ChatProduct { slug: string; name: string; price: number; unit: string; images: string[] }
 interface Msg {

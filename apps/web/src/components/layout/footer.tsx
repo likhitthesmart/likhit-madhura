@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Facebook, Instagram, Mail, MapPin, Phone, Youtube } from "lucide-react";
-import { Logo } from "./logo";
-import { NewsletterForm } from "./newsletter";
+import { Logo } from "../ui/logo";
+import { NewsletterForm } from "../ui/newsletter";
 
 const cols = [
   {
@@ -30,7 +30,9 @@ const cols = [
     title: "Company",
     links: [
       { href: "/about", label: "Our Story" },
-      { href: "/blog", label: "Blog & Recipes" },
+      { href: "/our-heritage", label: "Our Heritage" },
+      { href: "/blog", label: "Journal & Recipes" },
+      { href: "/reviews", label: "Customer Reviews" },
       { href: "/policies/privacy", label: "Privacy Policy" },
       { href: "/policies/terms", label: "Terms of Service" },
     ],

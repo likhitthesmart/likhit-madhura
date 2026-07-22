@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { api } from "@/lib/api";
-import { Reveal, Stagger, StaggerItem } from "@/components/motion";
+import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import { dateLong, cn } from "@/lib/format";
 
 export const revalidate = 300;

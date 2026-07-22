@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
-import { Reveal } from "@/components/motion";
+import { Reveal } from "@/components/ui/motion";
 import { ContactForm } from "./form";
 
 export const metadata: Metadata = {
-  title: "Contact Us",
-  description: "Questions about products, orders or bulk gifting? Write to the Madhura Naturals care team — we reply within 24 hours.",
+  title: "Contact Madhura Naturals — Support, Orders & Bulk Gifting",
+  description: "Questions about our cold pressed oils, A2 ghee or millets? Need help with an order or corporate gifting? Write to the Madhura Naturals care team in Zaheerabad, Telangana — we reply within 24 hours.",
+  alternates: { canonical: "/contact" },
 };
 
 const details = [

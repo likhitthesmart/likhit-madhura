@@ -7,7 +7,7 @@ import { useCart } from "@/store/cart";
 import { useAuth } from "@/store/auth";
 import { api, type CartQuote } from "@/lib/api";
 import { inr, cn } from "@/lib/format";
-import { trackEvent } from "@/components/providers";
+import { trackEvent } from "@/components/layout/providers";
 
 interface AddressForm {
   name: string; phone: string; line1: string; line2: string; city: string; state: string; pincode: string;

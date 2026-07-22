@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api, type User } from "@/lib/api";
 import { useAuth } from "@/store/auth";
-import { AuthCard } from "@/components/auth-card";
+import { AuthCard } from "@/components/ui/auth-card";
 
 export default function SignupPage() {
   const router = useRouter();

@@ -4,9 +4,9 @@ import Image from "next/image";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Award, Droplets, Leaf, MilkOff, Minus, Plus, ShieldCheck, Sprout, Star, Sun, Truck, Wheat } from "lucide-react";
-import { Reveal, Stagger, StaggerItem } from "@/components/motion";
+import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import type { Category, Product } from "@/lib/api";
-import { ProductCard } from "@/components/product-card";
+import { ProductCard } from "@/components/commerce/product-card";
 import { dateLong } from "@/lib/format";
 
 export function SectionHeading({ eyebrow, title, sub, light = false }: { eyebrow: string; title: string; sub?: string; light?: boolean }) {

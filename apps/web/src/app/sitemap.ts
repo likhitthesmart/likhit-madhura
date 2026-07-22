@@ -3,7 +3,7 @@ import { api, type Product, type Category } from "@/lib/api";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-  const staticPages = ["", "/shop", "/about", "/contact", "/blog", "/faq", "/track-order", "/policies/shipping", "/policies/returns", "/policies/privacy", "/policies/terms"].map((p) => ({
+  const staticPages = ["", "/shop", "/about", "/our-heritage", "/reviews", "/contact", "/blog", "/faq", "/track-order", "/policies/shipping", "/policies/returns", "/policies/privacy", "/policies/terms"].map((p) => ({
     url: `${base}${p}`,
     changeFrequency: "weekly" as const,
     priority: p === "" ? 1 : 0.7,

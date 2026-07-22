@@ -20,7 +20,7 @@ import {
   Warehouse,
   X,
 } from "lucide-react";
-import { Logo } from "@/components/logo";
+import { Logo } from "@/components/ui/logo";
 import { useAuth } from "@/store/auth";
 import { cn } from "@/lib/format";
 import { Spinner } from "@/components/admin/ui";

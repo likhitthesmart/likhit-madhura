@@ -3,7 +3,11 @@ import { api } from "@/lib/api";
 import { FaqSection, type FaqItem } from "@/components/home/sections";
 
 export const revalidate = 300;
-export const metadata: Metadata = { title: "FAQs", description: "Answers on products, shipping, returns and certification." };
+export const metadata: Metadata = {
+  title: "FAQs — Organic Certification, Shipping, Returns & Freshness",
+  description: "Answers to common questions about Madhura Naturals: organic certification, how fresh our cold pressed oils and flours are, A2 ghee purity, shipping timelines across India, and our 7-day return policy.",
+  alternates: { canonical: "/faq" },
+};
 
 export default async function FaqPage() {
   let faqs: FaqItem[] = [];

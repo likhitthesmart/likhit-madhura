@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Reveal, Stagger, StaggerItem } from "@/components/motion";
+import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import { SectionHeading } from "@/components/home/sections";
 
 export const metadata: Metadata = {
-  title: "Our Story — Heritage, Farms & the Madhura Way",
-  description: "Madhura Naturals began in a village kitchen in Telangana. Meet the farms, the wooden ghanis and the families behind your food.",
+  title: "Our Story — Why Madhura Naturals Exists",
+  description:
+    "Madhura Naturals began in a Telangana village kitchen with one refusal: no refined oils, no chemical-fed grains, no shortcuts. Meet the founders, the 200+ farming families and the values behind India's honest organic pantry.",
+  alternates: { canonical: "/about" },
+  openGraph: { images: [{ url: "/media/story/heritage.jpg" }] },
 };
 
 const values = [

@@ -2,7 +2,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
-import { AuthCard } from "@/components/auth-card";
+import { AuthCard } from "@/components/ui/auth-card";
 
 function ResetForm() {
   const sp = useSearchParams();
