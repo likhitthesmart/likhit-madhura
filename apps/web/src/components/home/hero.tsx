@@ -29,51 +29,26 @@ export function Hero() {
       </motion.div>
 
       <motion.div style={reduce ? undefined : { opacity }} className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center text-ivory">
-        <motion.p
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.9 }}
-          className="text-xs font-semibold uppercase tracking-[0.45em] text-gold-light"
-        >
+        <p className="animate-rise text-xs font-semibold uppercase tracking-[0.45em] text-gold-light" style={{ animationDelay: "0.25s" }}>
           From the farms of South India
-        </motion.p>
-        <motion.h1
-          initial={{ opacity: 0, y: 26 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 1 }}
-          className="mt-5 font-display text-5xl font-medium leading-[1.05] sm:text-6xl lg:text-7xl"
-        >
+        </p>
+        <h1 className="animate-rise mt-5 font-display text-5xl font-medium leading-[1.05] sm:text-6xl lg:text-7xl" style={{ animationDelay: "0.45s" }}>
           Madhura Naturals
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 22 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.75, duration: 0.9 }}
-          className="mt-4 max-w-xl font-display text-xl italic text-ivory/85 sm:text-2xl"
-        >
+        </h1>
+        <p className="animate-rise mt-4 max-w-xl font-display text-xl italic text-ivory/85 sm:text-2xl" style={{ animationDelay: "0.65s" }}>
           Premium organic goodness — pressed, churned and milled the way tradition intended.
-        </motion.p>
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1, duration: 0.8 }}
-          className="mt-9 flex flex-wrap items-center justify-center gap-4"
-        >
+        </p>
+        <div className="animate-rise mt-9 flex flex-wrap items-center justify-center gap-4" style={{ animationDelay: "0.85s" }}>
           <Link href="/shop" className="btn-gold px-9 py-3.5 text-base">Shop the Harvest</Link>
           <Link href="/about" className="btn-secondary border-ivory/40 px-9 py-3.5 text-base text-ivory hover:bg-ivory/10">
             Our Story
           </Link>
-        </motion.div>
+        </div>
       </motion.div>
 
-      <motion.div
-        animate={reduce ? undefined : { y: [0, 8, 0] }}
-        transition={{ repeat: Infinity, duration: 2.2 }}
-        className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 text-ivory/70"
-        aria-hidden
-      >
+      <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-bounce text-ivory/70" aria-hidden>
         <ChevronDown className="h-6 w-6" />
-      </motion.div>
+      </div>
     </section>
   );
 }

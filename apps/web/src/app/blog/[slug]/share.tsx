@@ -4,15 +4,18 @@ import { useState } from "react";
 
 export function ShareRow({ title }: { title: string }) {
   const [copied, setCopied] = useState(false);
-  const url = typeof window !== "undefined" ? window.location.href : "";
+  const openShare = (base: string) => {
+    const url = encodeURIComponent(window.location.href);
+    window.open(base.replace("{url}", url).replace("{title}", encodeURIComponent(title)), "_blank", "noopener");
+  };
   return (
     <div className="mt-8 flex items-center gap-3 border-t border-sand pt-6">
       <span className="text-xs font-semibold uppercase tracking-wider text-bark/60">Share</span>
-      <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`} target="_blank" rel="noopener noreferrer" aria-label="Share on X" className="rounded-full border border-sand-dark p-2 text-bark hover:border-forest-500 hover:text-forest-800"><Twitter className="h-4 w-4" /></a>
-      <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`} target="_blank" rel="noopener noreferrer" aria-label="Share on Facebook" className="rounded-full border border-sand-dark p-2 text-bark hover:border-forest-500 hover:text-forest-800"><Facebook className="h-4 w-4" /></a>
+      <button onClick={() => openShare("https://twitter.com/intent/tweet?text={title}&url={url}")} aria-label="Share on X" className="rounded-full border border-sand-dark p-2 text-bark hover:border-forest-500 hover:text-forest-800"><Twitter className="h-4 w-4" /></button>
+      <button onClick={() => openShare("https://www.facebook.com/sharer/sharer.php?u={url}")} aria-label="Share on Facebook" className="rounded-full border border-sand-dark p-2 text-bark hover:border-forest-500 hover:text-forest-800"><Facebook className="h-4 w-4" /></button>
       <button
         onClick={async () => {
-          await navigator.clipboard.writeText(url);
+          await navigator.clipboard.writeText(window.location.href);
           setCopied(true);
           setTimeout(() => setCopied(false), 1500);
         }}
