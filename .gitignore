@@ -7,3 +7,6 @@ dist/
 .DS_Store
 certs/
 db_data/
+
+apps/api/.pgdata/
+apps/web/.next/

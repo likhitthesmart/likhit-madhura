@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "postinstall": "prisma generate",
     "prisma:push": "prisma db push",
-    "seed": "tsx src/seed.ts"
+    "seed": "tsx src/seed.ts",
+    "dev:db": "tsx scripts/dev-db.ts"
   },
   "prisma": {
     "seed": "tsx src/seed.ts"
@@ -37,6 +38,9 @@
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.10.5",
     "@types/nodemailer": "^6.4.17",
+    "@types/pg": "^8.20.0",
+    "embedded-postgres": "^18.4.0-beta.17",
+    "pg": "^8.22.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }

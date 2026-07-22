@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-cream text-ink font-body antialiased;
+}
+
+::selection {
+  @apply bg-forest-200 text-forest-900;
+}
+
+/* thin elegant scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #f7f4ee;
+}
+::-webkit-scrollbar-thumb {
+  background: #c8d3ae;
+  border-radius: 8px;
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+  .heading-display {
+    @apply font-display font-medium tracking-tight text-forest-900;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-forest-800 px-7 py-3 text-sm font-semibold text-ivory transition-all duration-300 hover:bg-forest-700 hover:shadow-lift focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest-600 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-forest-300 bg-transparent px-7 py-3 text-sm font-semibold text-forest-800 transition-all duration-300 hover:border-forest-500 hover:bg-forest-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest-600 disabled:opacity-50;
+  }
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-gold px-7 py-3 text-sm font-semibold text-ivory transition-all duration-300 hover:bg-gold-dark hover:shadow-lift disabled:opacity-50;
+  }
+  .input-field {
+    @apply w-full rounded-xl border border-sand-dark bg-ivory px-4 py-3 text-sm text-ink placeholder:text-bark/40 focus:border-forest-400 focus:outline-none focus:ring-2 focus:ring-forest-200 disabled:opacity-60;
+  }
+  .card-organic {
+    @apply rounded-organic border border-sand bg-ivory shadow-card;
+  }
+  .label-field {
+    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wider text-bark/70;
+  }
+}
+
+/* leaf divider between sections */
+.divider-leaf {
+  position: relative;
+  height: 44px;
+}
+.divider-leaf::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: min(320px, 60%);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #b98d3e66, transparent);
+}
+.divider-leaf::after {
+  content: "❧";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: #b98d3e;
+  background: inherit;
+  padding: 0 16px;
+  font-size: 18px;
+}
+
+/* kolam-inspired dotted border for special cards */
+.border-kolam {
+  border-image: repeating-linear-gradient(45deg, #b98d3e, #b98d3e 4px, transparent 4px, transparent 10px) 1;
+}
