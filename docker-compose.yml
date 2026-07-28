@@ -23,8 +23,10 @@ services:
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-    expose:
-      - "4000"
+    # Published on loopback only: the reverse proxy is managed on the host, so it
+    # reaches this directly, while the port stays closed to the outside world.
+    ports:
+      - "127.0.0.1:4000:4000"
 
   web:
     build:
@@ -40,18 +42,5 @@ services:
       API_URL: http://api:4000
     depends_on:
       - api
-    expose:
-      - "3000"
-
-  nginx:
-    image: nginx:alpine
-    restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      # - ./certs:/etc/nginx/certs:ro   # mount SSL certs here, then enable the 443 block
-    depends_on:
-      - web
-      - api
+      - "127.0.0.1:3000:3000"

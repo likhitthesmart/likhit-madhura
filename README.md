@@ -11,14 +11,13 @@ Full-stack, production-ready eCommerce for **Madhura Naturals** ("Premium Organi
 | Auth | JWT access (15 min) + rotating refresh tokens (httpOnly cookie) · RBAC (CUSTOMER/STAFF/ADMIN) |
 | Email | Nodemailer (SMTP-ready; logs to console when unconfigured) |
 | Media | Higgsfield-generated hero film + 46 brand images, self-hosted under `apps/web/public/media` |
-| Deploy | Docker Compose (db/api/web/nginx) · PM2 · Nginx SSL-ready |
+| Deploy | Docker Compose (db/api/web) · PM2 · reverse proxy and TLS managed on the host |
 
 ## Repo layout
 
 ```
 apps/api    Express REST API  (src/routes/*, prisma/schema.prisma, src/seed.ts)
 apps/web    Next.js storefront + customer account + dark admin panel (src/app/*)
-nginx/      Reverse proxy config (80 → web/api; 443 block ready for certs)
 docker-compose.yml  Production stack
 ecosystem.config.js PM2 alternative to Docker
 ```
@@ -52,7 +51,9 @@ docker compose up -d --build
 docker compose exec api npx prisma db push && docker compose exec api npm run seed
 ```
 
-SSL: place certs in `./certs`, uncomment the 443 block in `nginx/nginx.conf` and the volume in compose.
+The containers publish to loopback only (`127.0.0.1:3000` web, `127.0.0.1:4000` api).
+Point your own reverse proxy at those: `/api/` → `:4000`, everything else → `:3000`.
+TLS is terminated there too — the stack itself serves plain HTTP.
 
 ## Feature map
 

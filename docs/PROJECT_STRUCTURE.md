@@ -1,6 +1,6 @@
 # Project Structure
 
-A two-app monorepo: a Next.js storefront (`apps/web`) and an Express + Prisma API (`apps/api`), fronted by Nginx in production.
+A two-app monorepo: a Next.js storefront (`apps/web`) and an Express + Prisma API (`apps/api`). In production both run behind a reverse proxy that is managed on the host, outside this repo.
 
 ```
 madhura-organics/
@@ -56,8 +56,7 @@ madhura-organics/
 │           └── .dockerignore
 │
 ├── docs/                          # architecture, structure, deployment, specs
-├── nginx/nginx.conf               # reverse proxy (80 → web/api; 443 SSL-ready)
-├── docker-compose.yml             # db + api + web + nginx
+├── docker-compose.yml             # api + web, published on loopback for a host proxy
 ├── ecosystem.config.js            # PM2 (non-Docker deploy)
 ├── assets-manifest.json           # media file → Higgsfield job id
 └── README.md
