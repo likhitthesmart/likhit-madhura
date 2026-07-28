@@ -86,7 +86,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                   key={p}
                   href={pageLink(p)}
                   className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition ${
-                    p === page ? "bg-forest-800 text-ivory" : "border border-sand-dark text-bark hover:border-forest-400"
+                    p === page ? "bg-deep-800 text-ivory" : "border border-sand-dark text-bark hover:border-forest-400"
                   }`}
                 >
                   {p}

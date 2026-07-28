@@ -235,7 +235,7 @@ export default function CouponsPage() {
                   {c.usedCount}
                   {c.usageLimit != null && <span className="text-ivory/40">/{c.usageLimit}</span>}
                 </Td>
-                <Td className="space-x-1 text-[10px] uppercase tracking-wider text-forest-300">
+                <Td className="space-x-1 text-[10px] uppercase tracking-wider text-sage">
                   {c.autoApply && <span>auto</span>}
                   {c.stackable && <span>stack</span>}
                 </Td>

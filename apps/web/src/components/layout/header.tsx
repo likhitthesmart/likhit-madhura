@@ -2,11 +2,12 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Heart, Menu, Mic, Search, ShoppingBag, User, X } from "lucide-react";
+import { Heart, Menu, Mic, Moon, Search, ShoppingBag, Sun, User, X } from "lucide-react";
 import { Logo } from "../ui/logo";
 import { useCart, cartCount } from "@/store/cart";
 import { useAuth } from "@/store/auth";
 import { usePrefs } from "@/store/prefs";
+import { toggleTheme } from "@/store/theme";
 import { api } from "@/lib/api";
 import { inr, cn } from "@/lib/format";
 
@@ -68,8 +69,8 @@ function SearchOverlay({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[60] bg-forest-950/40 backdrop-blur-sm" onClick={onClose}>
-      <div className="mx-auto mt-20 w-[min(640px,92vw)] card-organic overflow-hidden bg-ivory p-0" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-[60] bg-deep-950/40 backdrop-blur-sm" onClick={onClose}>
+      <div className="mx-auto mt-20 w-[min(640px,92vw)] card-organic overflow-hidden bg-surface p-0" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center gap-3 border-b border-sand px-5 py-4">
           <Search className="h-5 w-5 text-forest-600" />
           <input
@@ -166,12 +167,12 @@ export function Header() {
       <header
         className={cn(
           "fixed inset-x-0 top-0 z-50 transition-all duration-500",
-          solid ? "bg-ivory/90 shadow-soft backdrop-blur-md" : "bg-gradient-to-b from-forest-950/50 to-transparent"
+          solid ? "bg-surface/90 shadow-soft backdrop-blur-md" : "bg-gradient-to-b from-deep-950/50 to-transparent"
         )}
       >
-        <div className="container-page flex h-[4.5rem] items-center justify-between gap-4">
-          <Link href="/" aria-label="Madhura Naturals home">
-            <Logo light={!solid} className="scale-90 sm:scale-100" />
+        <div className="container-page flex h-[4.5rem] items-center justify-between gap-2 sm:gap-4">
+          <Link href="/" aria-label="Madhura Naturals home" className="min-w-0">
+            <Logo light={!solid} className="scale-[0.78] origin-left sm:scale-100" />
           </Link>
           <nav className="hidden items-center gap-7 lg:flex" aria-label="Main">
             {nav.map((n) => (
@@ -187,17 +188,23 @@ export function Header() {
               </Link>
             ))}
           </nav>
-          <div className={cn("flex items-center gap-1", solid ? "text-forest-800" : "text-ivory")}>
-            <button onClick={() => setSearchOpen(true)} aria-label="Search" className="rounded-full p-2.5 transition hover:bg-forest-900/10">
+          {/* p-2 on phones keeps every target ≥36px while fitting five icons at 360px;
+              wishlist and account move into the mobile menu rather than shrinking further */}
+          <div className={cn("flex shrink-0 items-center gap-0.5 sm:gap-1", solid ? "text-forest-800" : "text-ivory")}>
+            <button onClick={() => setSearchOpen(true)} aria-label="Search" className="rounded-full p-2 transition hover:bg-deep-900/10 sm:p-2.5">
               <Search className="h-5 w-5" />
             </button>
-            <Link href={user ? "/account/wishlist" : "/login"} aria-label="Wishlist" className="hidden rounded-full p-2.5 transition hover:bg-forest-900/10 sm:block">
+            <button onClick={toggleTheme} aria-label="Toggle dark theme" className="rounded-full p-2 transition hover:bg-deep-900/10 sm:p-2.5">
+              <Moon className="h-5 w-5 dark:hidden" />
+              <Sun className="hidden h-5 w-5 dark:block" />
+            </button>
+            <Link href={user ? "/account/wishlist" : "/login"} aria-label="Wishlist" className="hidden rounded-full p-2.5 transition hover:bg-deep-900/10 sm:block">
               <Heart className="h-5 w-5" />
             </Link>
-            <Link href={user ? "/account" : "/login"} aria-label={user ? "My account" : "Sign in"} className="rounded-full p-2.5 transition hover:bg-forest-900/10">
+            <Link href={user ? "/account" : "/login"} aria-label={user ? "My account" : "Sign in"} className="hidden rounded-full p-2.5 transition hover:bg-deep-900/10 sm:block">
               <User className="h-5 w-5" />
             </Link>
-            <Link href="/cart" aria-label={`Cart, ${count} items`} className="relative rounded-full p-2.5 transition hover:bg-forest-900/10">
+            <Link href="/cart" aria-label={`Cart, ${count} items`} className="relative rounded-full p-2 transition hover:bg-deep-900/10 sm:p-2.5">
               <ShoppingBag className="h-5 w-5" />
               {count > 0 && (
                 <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-copper px-1 text-[0.65rem] font-bold text-ivory">
@@ -205,18 +212,27 @@ export function Header() {
                 </span>
               )}
             </Link>
-            <button onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu" className="rounded-full p-2.5 transition hover:bg-forest-900/10 lg:hidden">
+            <button onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu" aria-expanded={menuOpen} className="rounded-full p-2 transition hover:bg-deep-900/10 sm:p-2.5 lg:hidden">
               {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
         {menuOpen && (
-          <nav className="border-t border-sand bg-ivory px-6 py-4 lg:hidden" aria-label="Mobile">
+          // max-h + scroll so the menu stays usable in landscape, where 4.5rem of
+          // header plus nine rows would otherwise run past the fold with no way down
+          <nav className="max-h-[calc(100vh-4.5rem)] overflow-y-auto border-t border-sand bg-surface px-6 py-2 lg:hidden" aria-label="Mobile">
             {nav.map((n) => (
-              <Link key={n.label} href={n.href} className="block border-b border-sand/60 py-3 text-sm font-medium text-bark last:border-0">
+              <Link key={n.label} href={n.href} className="block border-b border-sand/60 py-3.5 text-sm font-medium text-bark">
                 {n.label}
               </Link>
             ))}
+            {/* shown here because the header drops these two icons below sm */}
+            <Link href={user ? "/account" : "/login"} className="block border-b border-sand/60 py-3.5 text-sm font-medium text-bark sm:hidden">
+              {user ? "My account" : "Sign in"}
+            </Link>
+            <Link href={user ? "/account/wishlist" : "/login"} className="block py-3.5 text-sm font-medium text-bark sm:hidden">
+              Wishlist
+            </Link>
           </nav>
         )}
       </header>

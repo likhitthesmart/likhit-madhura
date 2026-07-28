@@ -14,7 +14,42 @@ interface AddressForm {
 }
 const emptyAddress: AddressForm = { name: "", phone: "", line1: "", line2: "", city: "", state: "", pincode: "" };
 
+interface SavedAddress {
+  id: string; label: string; name: string; phone: string; line1: string; line2: string | null;
+  city: string; state: string; pincode: string; isDefault: boolean;
+}
+// line2 is nullable in the database but the form inputs need a string
+const toForm = (a: SavedAddress): AddressForm => ({
+  name: a.name, phone: a.phone, line1: a.line1, line2: a.line2 ?? "",
+  city: a.city, state: a.state, pincode: a.pincode,
+});
+
 const steps = ["Address", "Review", "Payment"] as const;
+
+interface RazorpayInstance {
+  open(): void;
+  on(event: string, handler: (r: unknown) => void): void;
+}
+
+interface PaymentIntent {
+  provider: string;
+  keyId?: string;
+  razorpayOrderId?: string;
+  amount?: number;
+  currency?: string;
+}
+
+// Razorpay's widget is script-tag only — no npm package for the browser side.
+const RAZORPAY_JS = "https://checkout.razorpay.com/v1/checkout.js";
+const loadRazorpay = (): Promise<void> =>
+  new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${RAZORPAY_JS}"]`)) return resolve();
+    const s = document.createElement("script");
+    s.src = RAZORPAY_JS;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error("Could not reach Razorpay. Check your connection and retry."));
+    document.head.appendChild(s);
+  });
 
 function AddressFields({ value, onChange, prefix }: { value: AddressForm; onChange: (a: AddressForm) => void; prefix: string }) {
   const set = (k: keyof AddressForm) => (e: React.ChangeEvent<HTMLInputElement>) => onChange({ ...value, [k]: e.target.value });
@@ -58,7 +93,7 @@ function Countdown({ until, onExpire }: { until: string; onExpire: () => void })
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, couponCode, clear } = useCart();
-  const { user } = useAuth();
+  const { user, accessToken } = useAuth();
   const [step, setStep] = useState(0);
   const [email, setEmail] = useState("");
   const [shipping, setShipping] = useState<AddressForm>(emptyAddress);
@@ -67,18 +102,41 @@ export default function CheckoutPage() {
   const [giftNote, setGiftNote] = useState("");
   const [quote, setQuote] = useState<CartQuote | null>(null);
   const [order, setOrder] = useState<{ id: string; orderNo: string; total: number; paymentExpiresAt: string } | null>(null);
+  const [intent, setIntent] = useState<PaymentIntent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [payState, setPayState] = useState<"idle" | "paying" | "failed" | "expired">("idle");
+
+  const [saved, setSaved] = useState<SavedAddress[]>([]);
 
   useEffect(() => {
     if (user?.email && !email) setEmail(user.email);
   }, [user, email]);
 
+  // Prefill from the customer's saved addresses. The API returns them default-first.
+  // Only fills a form the customer has not started typing into, so a late-arriving
+  // response can never overwrite what they are entering.
+  useEffect(() => {
+    if (!accessToken) return;
+    let cancelled = false;
+    api<{ addresses: SavedAddress[] }>("/account/addresses", { token: accessToken })
+      .then(({ addresses }) => {
+        if (cancelled || !addresses.length) return;
+        setSaved(addresses);
+        setShipping((current) => (current.line1 ? current : toForm(addresses[0])));
+      })
+      .catch(() => undefined); // no saved addresses is not an error worth showing
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken]);
+
   useEffect(() => {
     if (!items.length || !shipping.pincode || shipping.pincode.length !== 6) return;
     api<CartQuote>("/cart/quote", {
       method: "POST",
+      // token so member-only coupons resolve for signed-in customers
+      token: accessToken,
       body: JSON.stringify({
         items: items.map((i) => ({ productId: i.productId, qty: i.qty })),
         couponCode: couponCode || undefined,
@@ -87,7 +145,7 @@ export default function CheckoutPage() {
     })
       .then(setQuote)
       .catch(() => undefined);
-  }, [items, couponCode, shipping.pincode]);
+  }, [items, couponCode, shipping.pincode, accessToken]);
 
   const canReview = useMemo(
     () => email.includes("@") && shipping.name && shipping.phone.length >= 10 && shipping.line1 && shipping.city && shipping.state && /^\d{6}$/.test(shipping.pincode),
@@ -106,8 +164,10 @@ export default function CheckoutPage() {
     setBusy(true);
     setError(null);
     try {
-      const r = await api<{ order: { id: string; orderNo: string; total: number; paymentExpiresAt: string } }>("/orders", {
+      const r = await api<{ order: { id: string; orderNo: string; total: number; paymentExpiresAt: string }; payment: PaymentIntent }>("/orders", {
         method: "POST",
+        // without this the order is created as a guest and never appears under Account → Orders
+        token: accessToken,
         body: JSON.stringify({
           items: items.map((i) => ({ productId: i.productId, qty: i.qty })),
           couponCode: couponCode || undefined,
@@ -119,6 +179,7 @@ export default function CheckoutPage() {
         }),
       });
       setOrder(r.order);
+      setIntent(r.payment);
       setStep(2);
       trackEvent("begin_checkout", { orderNo: r.order.orderNo });
     } catch (e) {
@@ -128,19 +189,60 @@ export default function CheckoutPage() {
     }
   };
 
+  // hands the gateway's callback payload to the API, which verifies it before marking the order paid
+  const settle = async (gatewayPayload: Record<string, unknown>) => {
+    if (!order) return;
+    await api(`/orders/${order.id}/pay`, { method: "POST", body: JSON.stringify(gatewayPayload) });
+    trackEvent("purchase", { orderNo: order.orderNo, total: order.total });
+    clear();
+    router.push(`/checkout/result?status=success&orderNo=${order.orderNo}&id=${order.id}`);
+  };
+
+  const markFailed = async () => {
+    if (!order) return;
+    await api(`/orders/${order.id}/fail`, { method: "POST", body: JSON.stringify({}) }).catch(() => undefined);
+    setPayState("failed");
+  };
+
+  const payWithRazorpay = async () => {
+    if (!order || !intent?.razorpayOrderId) return;
+    setPayState("paying");
+    setError(null);
+    try {
+      await loadRazorpay();
+      const rzp = new (window as unknown as { Razorpay: new (o: unknown) => RazorpayInstance }).Razorpay({
+        key: intent.keyId,
+        order_id: intent.razorpayOrderId,
+        amount: intent.amount,
+        currency: intent.currency ?? "INR",
+        name: "Madhura Naturals",
+        description: `Order ${order.orderNo}`,
+        prefill: { name: shipping.name, email, contact: shipping.phone },
+        theme: { color: "#2f5d3a" },
+        handler: (r: Record<string, unknown>) => {
+          settle(r).catch((e) => {
+            setPayState("failed");
+            setError(e instanceof Error ? e.message : "Payment verification failed");
+          });
+        },
+        // customer closed the widget — back to idle so they can retry within the window
+        modal: { ondismiss: () => setPayState("idle") },
+      });
+      rzp.on("payment.failed", () => void markFailed());
+      rzp.open();
+    } catch (e) {
+      setPayState("failed");
+      setError(e instanceof Error ? e.message : "Could not open the payment gateway");
+    }
+  };
+
+  // sandbox provider only — simulates the gateway response
   const pay = async (succeed: boolean) => {
     if (!order) return;
     setPayState("paying");
     try {
-      if (succeed) {
-        await api(`/orders/${order.id}/pay`, { method: "POST", body: JSON.stringify({}) });
-        trackEvent("purchase", { orderNo: order.orderNo, total: order.total });
-        clear();
-        router.push(`/checkout/result?status=success&orderNo=${order.orderNo}&id=${order.id}`);
-      } else {
-        await api(`/orders/${order.id}/fail`, { method: "POST", body: JSON.stringify({}) });
-        setPayState("failed");
-      }
+      if (succeed) await settle({});
+      else await markFailed();
     } catch (e) {
       setPayState("failed");
       setError(e instanceof Error ? e.message : "Payment failed");
@@ -157,7 +259,7 @@ export default function CheckoutPage() {
       <ol className="mt-8 flex items-center gap-2" aria-label="Checkout steps">
         {steps.map((s, i) => (
           <li key={s} className="flex flex-1 items-center gap-2">
-            <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold", i < step ? "bg-forest-700 text-ivory" : i === step ? "border-2 border-forest-700 text-forest-800" : "border border-sand-dark text-bark/40")}>
+            <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold", i < step ? "bg-deep-700 text-ivory" : i === step ? "border-2 border-forest-700 text-forest-800" : "border border-sand-dark text-bark/40")}>
               {i < step ? <Check className="h-4 w-4" /> : i + 1}
             </span>
             <span className={cn("text-sm font-medium", i === step ? "text-forest-900" : "text-bark/50")}>{s}</span>
@@ -178,6 +280,28 @@ export default function CheckoutPage() {
             >
               <div>
                 <h2 className="flex items-center gap-2 font-display text-2xl text-forest-900"><MapPin className="h-5 w-5 text-gold-dark" /> Shipping address</h2>
+                {saved.length > 1 && (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {saved.map((a) => {
+                      const active = shipping.line1 === a.line1 && shipping.pincode === a.pincode;
+                      return (
+                        <button
+                          key={a.id}
+                          type="button"
+                          onClick={() => setShipping(toForm(a))}
+                          aria-pressed={active}
+                          className={cn(
+                            "rounded-full border px-4 py-1.5 text-sm transition",
+                            active ? "border-forest-700 bg-forest-700 text-cream" : "border-bark/20 text-bark hover:border-bark/40"
+                          )}
+                        >
+                          {a.label}
+                          {a.isDefault && " ·  default"}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
                 <div className="mt-5 grid gap-4">
                   <div><label className="label-field" htmlFor="email">Email</label><input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="input-field" /></div>
                   <AddressFields value={shipping} onChange={setShipping} prefix="ship" />
@@ -243,20 +367,38 @@ export default function CheckoutPage() {
                 </div>
               ) : (
                 <>
-                  <div className="rounded-2xl border border-dashed border-sand-dark bg-cream p-5 text-sm text-bark/70">
-                    {/* Razorpay / PhonePe / Cashfree / Stripe slot in here via the payment provider abstraction */}
-                    This store is running the <b>sandbox payment gateway</b>. Use the buttons below to simulate the
-                    gateway response.
-                  </div>
-                  {payState === "failed" && (
-                    <div className="rounded-2xl bg-copper/10 p-4 text-sm text-copper">Payment failed. You can retry until the timer runs out.</div>
+                  {intent?.provider === "razorpay" ? (
+                    <>
+                      <div className="rounded-2xl border border-dashed border-sand-dark bg-cream p-5 text-sm text-bark/70">
+                        Pay securely via <b>Razorpay</b> — UPI, cards, net banking and wallets.
+                        {intent.keyId?.startsWith("rzp_test_") && (
+                          <> This store is in <b>test mode</b>; use Razorpay&apos;s test instruments — no money moves.</>
+                        )}
+                      </div>
+                      {payState === "failed" && (
+                        <div className="rounded-2xl bg-copper/10 p-4 text-sm text-copper">Payment failed. You can retry until the timer runs out.</div>
+                      )}
+                      <button onClick={payWithRazorpay} disabled={payState === "paying"} className="btn-primary w-full">
+                        {payState === "paying" ? "Opening gateway…" : `Pay ${inr(order.total)}`}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div className="rounded-2xl border border-dashed border-sand-dark bg-cream p-5 text-sm text-bark/70">
+                        This store is running the <b>sandbox payment gateway</b>. Use the buttons below to simulate the
+                        gateway response.
+                      </div>
+                      {payState === "failed" && (
+                        <div className="rounded-2xl bg-copper/10 p-4 text-sm text-copper">Payment failed. You can retry until the timer runs out.</div>
+                      )}
+                      <div className="flex flex-col gap-3 sm:flex-row">
+                        <button onClick={() => pay(true)} disabled={payState === "paying"} className="btn-primary flex-1">
+                          {payState === "paying" ? "Processing…" : `Pay ${inr(order.total)}`}
+                        </button>
+                        <button onClick={() => pay(false)} disabled={payState === "paying"} className="btn-secondary">Simulate failure</button>
+                      </div>
+                    </>
                   )}
-                  <div className="flex flex-col gap-3 sm:flex-row">
-                    <button onClick={() => pay(true)} disabled={payState === "paying"} className="btn-primary flex-1">
-                      {payState === "paying" ? "Processing…" : `Pay ${inr(order.total)}`}
-                    </button>
-                    <button onClick={() => pay(false)} disabled={payState === "paying"} className="btn-secondary">Simulate failure</button>
-                  </div>
                 </>
               )}
               <p className="flex items-center justify-center gap-1.5 text-xs text-bark/50"><ShieldCheck className="h-4 w-4 text-forest-600" /> 256-bit encrypted · PCI-DSS ready · No card details stored</p>

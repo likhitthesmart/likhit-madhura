@@ -5,6 +5,7 @@ import { prisma } from "../prisma";
 import { wrap, HttpError } from "../middleware/error";
 import { requireRole } from "../middleware/auth";
 import { pushTimeline } from "../lib/util";
+import { sendMail, mailTemplates } from "../lib/mailer";
 
 export const adminRouter = Router();
 adminRouter.use(requireRole("ADMIN", "STAFF"));
@@ -244,6 +245,12 @@ adminRouter.patch("/orders/:id/status", wrap(async (req, res) => {
     },
   });
   await audit(req.auth!.userId, "order_status", "order", order.id, { status: body.status });
+  // only on a real transition — editing a tracking number on an already-SHIPPED
+  // order must not re-notify the customer
+  if (updated.status !== order.status) {
+    const mail = mailTemplates.orderStatus({ ...updated, note: body.note });
+    if (mail) void sendMail(updated.email, mail.subject, mail.html);
+  }
   res.json({ order: updated });
 }));
 
@@ -263,6 +270,33 @@ adminRouter.get("/users", wrap(async (req, res) => {
     prisma.user.count({ where }),
   ]);
   res.json({ users, total, pages: Math.ceil(total / 20) });
+}));
+/** One customer with their full order history. Orders are matched by account id
+ *  OR by email, so guest checkouts made with the same address show up here too —
+ *  the storefront's own history does the same, and the list column's _count does
+ *  not, which is why the two numbers can differ. */
+adminRouter.get("/users/:id", wrap(async (req, res) => {
+  const user = await prisma.user.findUnique({
+    where: { id: req.params.id },
+    select: { id: true, name: true, email: true, phone: true, role: true, blocked: true, provider: true, emailVerifiedAt: true, lastLoginAt: true, createdAt: true },
+  });
+  if (!user) throw new HttpError(404, "Customer not found");
+  const orders = await prisma.order.findMany({
+    where: { OR: [{ userId: user.id }, { userId: null, email: user.email }] },
+    orderBy: { createdAt: "desc" },
+    include: { items: true },
+  });
+  const paid = orders.filter((o) => o.paymentStatus === "PAID");
+  res.json({
+    user,
+    orders,
+    stats: {
+      orders: orders.length,
+      paidOrders: paid.length,
+      lifetimeValue: paid.reduce((sum, o) => sum + o.total, 0),
+      lastOrderAt: orders[0]?.createdAt ?? null,
+    },
+  });
 }));
 adminRouter.patch("/users/:id", requireRole("ADMIN"), wrap(async (req, res) => {
   const body = z.object({ role: z.enum(["CUSTOMER", "STAFF", "ADMIN"]).optional(), blocked: z.boolean().optional() }).parse(req.body);

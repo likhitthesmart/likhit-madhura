@@ -123,8 +123,8 @@ export function Filters({ categories }: { categories: Category[] }) {
         <div className="sticky top-24 card-organic p-6">{body}</div>
       </aside>
       {open && (
-        <div className="fixed inset-0 z-[60] bg-forest-950/40 lg:hidden" onClick={() => setOpen(false)}>
-          <div className="absolute inset-y-0 left-0 w-[min(320px,85vw)] overflow-y-auto bg-ivory p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[60] bg-deep-950/40 lg:hidden" onClick={() => setOpen(false)}>
+          <div className="absolute inset-y-0 left-0 w-[min(320px,85vw)] overflow-y-auto bg-surface p-6" onClick={(e) => e.stopPropagation()}>
             <div className="mb-6 flex items-center justify-between">
               <p className="font-display text-xl text-forest-900">Filters</p>
               <button onClick={() => setOpen(false)} aria-label="Close filters"><X className="h-5 w-5" /></button>

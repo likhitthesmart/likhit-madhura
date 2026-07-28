@@ -112,7 +112,7 @@ export default function DashboardPage() {
       <Panel
         title="Recent orders"
         actions={
-          <Link href="/admin/orders" className="text-sm text-forest-300 transition-colors hover:text-gold">
+          <Link href="/admin/orders" className="text-sm text-sage transition-colors hover:text-gold">
             View all →
           </Link>
         }

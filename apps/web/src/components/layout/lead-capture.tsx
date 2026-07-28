@@ -62,10 +62,10 @@ export function LeadCapture() {
     <div
       role="dialog"
       aria-label="Welcome offer"
-      className="fixed bottom-4 left-4 z-40 w-[min(360px,calc(100vw-2rem))] animate-rise overflow-hidden rounded-organic border border-sand bg-ivory shadow-lift"
+      className="fixed bottom-4 left-4 z-40 w-[min(360px,calc(100vw-2rem))] animate-rise overflow-hidden rounded-organic border border-sand bg-surface shadow-lift"
       style={{ animationDuration: "0.5s" }}
     >
-      <div className="flex items-center justify-between bg-forest-900 px-5 py-3 text-ivory">
+      <div className="flex items-center justify-between bg-deep-900 px-5 py-3 text-ivory">
         <span className="inline-flex items-center gap-2 text-sm font-semibold">
           <Gift className="h-4 w-4 text-gold-light" /> A little welcome gift
         </span>

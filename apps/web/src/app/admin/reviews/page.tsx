@@ -75,7 +75,7 @@ export default function ReviewsPage() {
                   </div>
                   <p className="mt-2 text-sm leading-relaxed text-ivory/70">{r.body}</p>
                   <p className="mt-2 text-xs text-ivory/40">
-                    {r.user.name} ({r.user.email}) on <span className="text-forest-300">{r.product.name}</span> · {dateLong(r.createdAt)}
+                    {r.user.name} ({r.user.email}) on <span className="text-sage">{r.product.name}</span> · {dateLong(r.createdAt)}
                   </p>
                 </div>
                 <div className="flex shrink-0 gap-2">

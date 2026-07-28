@@ -22,7 +22,7 @@ export default function ContactPage() {
     <div className="pb-24">
       <section className="relative flex h-[45vh] min-h-[320px] items-end overflow-hidden">
         <Image src="/media/story/contact-banner.jpg" alt="Traditional South Indian home entrance with kolam" fill priority sizes="100vw" className="object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-forest-950/80 to-forest-950/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-deep-950/80 to-deep-950/20" />
         <div className="container-page relative z-10 pb-12 text-ivory">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.45em] text-gold-light">Namaste</p>

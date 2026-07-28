@@ -24,7 +24,7 @@ export default function AboutPage() {
     <div className="pb-24">
       <section className="relative flex h-[70vh] min-h-[420px] items-end overflow-hidden">
         <Image src="/media/story/about-banner.jpg" alt="Paddy fields and coconut palms at sunrise" fill priority sizes="100vw" className="object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-forest-950/80 via-forest-950/20 to-forest-950/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-deep-950/80 via-deep-950/20 to-deep-950/30" />
         <div className="container-page relative z-10 pb-16 text-ivory">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.45em] text-gold-light">Our story</p>
@@ -58,13 +58,13 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="bg-forest-900 py-24">
+      <section className="bg-deep-900 py-24">
         <div className="container-page">
           <SectionHeading light eyebrow="What we refuse to compromise" title="The Madhura principles" />
           <Stagger className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {values.map((v) => (
               <StaggerItem key={v.title}>
-                <div className="h-full rounded-organic border border-ivory/10 bg-ivory/5 p-7">
+                <div className="h-full rounded-organic border border-ivory/10 bg-surface/5 p-7">
                   <h3 className="font-display text-2xl text-gold-light">{v.title}</h3>
                   <p className="mt-3 text-sm leading-relaxed text-ivory/70">{v.text}</p>
                 </div>

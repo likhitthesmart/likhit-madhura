@@ -57,7 +57,7 @@ enum EnquiryStatus {
 model User {
   id              String    @id @default(cuid())
   email           String    @unique
-  passwordHash    String
+  passwordHash    String? // null for Google-only accounts
   name            String
   phone           String?
   role            Role      @default(CUSTOMER)

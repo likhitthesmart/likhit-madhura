@@ -25,13 +25,13 @@ ecosystem.config.js PM2 alternative to Docker
 
 ## Local development (Windows/macOS/Linux — no Docker needed)
 
+Database is Neon (hosted Postgres) — no local Postgres to run. Put the Neon
+connection string in `apps/api/.env` as `DATABASE_URL` (see `.env.example`).
+
 ```bash
 # 1. API — terminal A
 cd apps/api
 npm install
-npm run dev:db      # boots an embedded PostgreSQL on :5433 (UTF8) — keep running
-# terminal B
-cd apps/api
 npx prisma db push  # create tables
 npm run seed        # 8 categories, 21 products, blogs, FAQs, coupons, zones, admin user
 npm run dev         # API on :4000

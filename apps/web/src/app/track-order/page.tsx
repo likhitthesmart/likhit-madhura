@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, Package, Search } from "lucide-react";
 import { api } from "@/lib/api";
 import { dateLong, cn } from "@/lib/format";
@@ -22,6 +22,14 @@ export default function TrackOrderPage() {
   const [order, setOrder] = useState<Tracked | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  // Prefills the ?orderNo= the confirmation email links with. After mount, never in
+  // the initial state — the server renders without a URL query, so branching on
+  // `window` there makes the first client render disagree and breaks hydration.
+  useEffect(() => {
+    const fromEmail = new URLSearchParams(window.location.search).get("orderNo");
+    if (fromEmail) setOrderNo(fromEmail.toUpperCase());
+  }, []);
 
   const track = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,12 +77,12 @@ export default function TrackOrderPage() {
               {flow.map((s, i) => (
                 <li key={s} className="flex flex-1 items-center last:flex-none">
                   <div className="flex flex-col items-center">
-                    <span className={cn("flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold", i <= reached ? "bg-forest-700 text-ivory" : "border border-sand-dark text-bark/40")}>
+                    <span className={cn("flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold", i <= reached ? "bg-deep-700 text-ivory" : "border border-sand-dark text-bark/40")}>
                       {i <= reached ? <Check className="h-4 w-4" /> : i + 1}
                     </span>
                     <span className="mt-2 text-[0.6rem] font-semibold uppercase tracking-wide text-bark/60">{s.toLowerCase()}</span>
                   </div>
-                  {i < flow.length - 1 && <span className={cn("mx-1 h-0.5 flex-1 -translate-y-2.5", i < reached ? "bg-forest-600" : "bg-sand-dark")} />}
+                  {i < flow.length - 1 && <span className={cn("mx-1 h-0.5 flex-1 -translate-y-2.5", i < reached ? "bg-deep-600" : "bg-sand-dark")} />}
                 </li>
               ))}
             </ol>
@@ -88,7 +96,7 @@ export default function TrackOrderPage() {
           <ul className="mt-4 space-y-4 border-l-2 border-sand pl-5">
             {[...order.timeline].reverse().map((t, i) => (
               <li key={i} className="relative">
-                <span className="absolute -left-[1.65rem] top-1 h-3 w-3 rounded-full border-2 border-ivory bg-forest-600" />
+                <span className="absolute -left-[1.65rem] top-1 h-3 w-3 rounded-full border-2 border-surface bg-deep-600" />
                 <p className="text-sm font-semibold text-forest-900">{t.status}</p>
                 {t.note && <p className="text-xs text-bark/70">{t.note}</p>}
                 <p className="text-[0.7rem] text-bark/50">{new Date(t.at).toLocaleString("en-IN")}</p>

@@ -31,13 +31,15 @@ export function NewsletterForm({ dark = false }: { dark?: boolean }) {
         placeholder="Your email address"
         aria-label="Email address"
         className={cn(
-          "flex-1 rounded-full px-5 py-3 text-sm outline-none transition",
+          // min-w-0: a flex item will not shrink below its intrinsic width without it,
+          // so on narrow phones the input pushed the Subscribe button off-screen
+          "min-w-0 flex-1 rounded-full px-5 py-3 text-sm outline-none transition",
           dark
-            ? "border border-ivory/20 bg-ivory/10 text-ivory placeholder:text-ivory/40 focus:border-gold-light"
-            : "border border-sand-dark bg-ivory text-ink placeholder:text-bark/40 focus:border-forest-400"
+            ? "border border-ivory/20 bg-surface/10 text-ivory placeholder:text-ivory/40 focus:border-gold-light"
+            : "border border-sand-dark bg-surface text-ink placeholder:text-bark/40 focus:border-forest-400"
         )}
       />
-      <button type="submit" disabled={state === "busy"} className="btn-gold whitespace-nowrap">
+      <button type="submit" disabled={state === "busy"} className="btn-gold shrink-0 whitespace-nowrap px-5 sm:px-7">
         {state === "busy" ? "Joining…" : "Subscribe"}
       </button>
       {state === "error" && <p className="text-xs text-copper">Try again</p>}

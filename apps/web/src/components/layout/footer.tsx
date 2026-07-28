@@ -41,11 +41,11 @@ const cols = [
 
 export function Footer() {
   return (
-    <footer className="relative mt-24 bg-forest-950 text-ivory/85">
+    <footer className="relative mt-24 bg-deep-950 text-ivory/85">
       {/* temple-step top edge */}
       <div aria-hidden className="absolute -top-4 left-0 right-0 flex justify-center gap-0">
         {Array.from({ length: 24 }).map((_, i) => (
-          <div key={i} className="h-4 w-8 bg-forest-950 first:rounded-tl-lg last:rounded-tr-lg" style={{ marginTop: i % 2 ? 0 : -6, borderRadius: "6px 6px 0 0" }} />
+          <div key={i} className="h-4 w-8 bg-deep-950 first:rounded-tl-lg last:rounded-tr-lg" style={{ marginTop: i % 2 ? 0 : -6, borderRadius: "6px 6px 0 0" }} />
         ))}
       </div>
       <div className="container-page grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-5">
@@ -75,10 +75,12 @@ export function Footer() {
         {cols.map((col) => (
           <nav key={col.title} aria-label={col.title}>
             <h3 className="font-display text-lg text-gold-light">{col.title}</h3>
-            <ul className="mt-4 space-y-2.5">
+            <ul className="mt-2 sm:mt-4 sm:space-y-2.5">
               {col.links.map((l) => (
                 <li key={l.label}>
-                  <Link href={l.href} className="text-sm text-ivory/70 transition hover:text-ivory">{l.label}</Link>
+                  {/* inline-block + vertical padding gives these nav links a ~40px tap
+                      target on phones; they collapse back to a tight list from sm up */}
+                  <Link href={l.href} className="inline-block py-2.5 text-sm text-ivory/70 transition hover:text-ivory sm:py-0">{l.label}</Link>
                 </li>
               ))}
             </ul>

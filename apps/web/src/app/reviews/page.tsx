@@ -56,7 +56,7 @@ export default async function ReviewsPage() {
       <Reveal className="text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.4em] text-copper">From our families</p>
         <h1 className="mt-3 font-display text-4xl font-medium text-forest-900 sm:text-6xl">Loved in kitchens across India</h1>
-        <div className="mt-6 inline-flex items-center gap-3 rounded-full border border-sand bg-ivory px-6 py-3 shadow-card">
+        <div className="mt-6 inline-flex items-center gap-3 rounded-full border border-sand bg-surface px-6 py-3 shadow-card">
           <span className="font-display text-3xl font-semibold text-forest-900">{stats.avgRating.toFixed(1)}</span>
           <Stars n={Math.round(stats.avgRating)} />
           <span className="text-sm text-bark/60">from {Math.max(stats.reviewCount, testimonials.length)}+ reviews</span>
@@ -67,7 +67,7 @@ export default async function ReviewsPage() {
         <Stagger className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {testimonials.map((t) => (
             <StaggerItem key={t.id}>
-              <figure className="flex h-full flex-col rounded-organic border border-sand bg-ivory p-7 shadow-card">
+              <figure className="flex h-full flex-col rounded-organic border border-sand bg-surface p-7 shadow-card">
                 <Stars n={t.rating} />
                 <blockquote className="mt-4 flex-1 font-display text-lg italic leading-relaxed text-ink/85">“{t.quote}”</blockquote>
                 <figcaption className="mt-5 text-sm">
@@ -86,7 +86,7 @@ export default async function ReviewsPage() {
           <Stagger className="mt-8 grid gap-6 md:grid-cols-2">
             {reviews.map((r) => (
               <StaggerItem key={r.id}>
-                <div className="flex gap-4 rounded-organic border border-sand bg-ivory p-6 shadow-card">
+                <div className="flex gap-4 rounded-organic border border-sand bg-surface p-6 shadow-card">
                   {r.product?.images?.[0] && (
                     <Link href={`/product/${r.product.slug}`} className="h-16 w-16 shrink-0 overflow-hidden rounded-xl">
                       <img src={r.product.images[0]} alt="" className="h-full w-full object-cover" />

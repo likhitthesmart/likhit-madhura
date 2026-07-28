@@ -86,7 +86,7 @@ export default function AnalyticsPage() {
           </div>
 
           <Panel title="Referrers">
-            <Bars items={data.referrers.map((r) => ({ label: r.source, value: r.count }))} color="bg-forest-300/70" />
+            <Bars items={data.referrers.map((r) => ({ label: r.source, value: r.count }))} color="bg-sage/70" />
           </Panel>
 
           <Panel title="Recent events">
@@ -94,7 +94,7 @@ export default function AnalyticsPage() {
               <Table head={["Type", "Path", "Device", "Browser", "Session", "IP", "When"]}>
                 {data.recent.map((e, i) => (
                   <tr key={i} className={rowCls}>
-                    <Td className="text-forest-300">{e.type}</Td>
+                    <Td className="text-sage">{e.type}</Td>
                     <Td className="max-w-[240px]">
                       <p className="truncate">{e.path}</p>
                     </Td>

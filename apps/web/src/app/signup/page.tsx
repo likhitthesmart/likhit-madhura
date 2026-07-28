@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { api, type User } from "@/lib/api";
 import { useAuth } from "@/store/auth";
 import { AuthCard } from "@/components/ui/auth-card";
+import { GoogleButton } from "@/components/ui/google-button";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -42,6 +43,7 @@ export default function SignupPage() {
         {error && <p className="text-sm text-copper">{error}</p>}
         <button disabled={busy} className="btn-primary w-full">{busy ? "Creating account…" : "Create account"}</button>
       </form>
+      <GoogleButton label="Sign up with Google" />
       <p className="mt-6 text-center text-sm text-bark/70">
         Already with us? <Link href="/login" className="font-semibold text-forest-800 hover:underline">Sign in</Link>
       </p>

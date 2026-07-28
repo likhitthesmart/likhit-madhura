@@ -6,7 +6,9 @@ import { wrap } from "../middleware/error";
 import { sendMail, mailTemplates } from "../lib/mailer";
 
 export const contactRouter = Router();
-contactRouter.use(rateLimit({ windowMs: 15 * 60_000, limit: 20 }));
+// this router is mounted on the shared /api/v1 prefix, so the limiter must be
+// path-scoped — a bare .use() would count every /api/v1/* request against it
+contactRouter.use(["/enquiries", "/newsletter", "/chat"], rateLimit({ windowMs: 15 * 60_000, limit: 20 }));
 
 contactRouter.post(
   "/enquiries",
@@ -32,6 +34,7 @@ contactRouter.post(
   wrap(async (req, res) => {
     const { email } = z.object({ email: z.string().email().toLowerCase() }).parse(req.body);
     await prisma.subscriber.upsert({ where: { email }, create: { email }, update: { active: true } });
+    void sendMail(email, "Welcome to the Madhura family — Madhura Naturals", mailTemplates.newsletterWelcome());
     res.status(201).json({ ok: true, message: "Welcome to the Madhura family!" });
   })
 );

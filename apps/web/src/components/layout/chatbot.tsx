@@ -55,19 +55,19 @@ export function Chatbot() {
       <button
         onClick={() => setOpen(!open)}
         aria-label={open ? "Close chat" : "Chat with us"}
-        className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-forest-800 text-ivory shadow-lift transition-all duration-300 hover:scale-105 hover:bg-forest-700"
+        className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-deep-800 text-ivory shadow-lift transition-all duration-300 hover:scale-105 hover:bg-deep-700"
       >
         {open ? <X className="h-6 w-6" /> : <Leaf className="h-6 w-6" />}
       </button>
       <div
         className={cn(
-          "fixed bottom-24 right-5 z-50 flex w-[min(380px,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-organic border border-sand bg-ivory shadow-lift transition-all duration-300",
+          "fixed bottom-24 right-5 z-50 flex w-[min(380px,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-organic border border-sand bg-surface shadow-lift transition-all duration-300",
           open ? "pointer-events-auto translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
         )}
         role="dialog"
         aria-label="Chat assistant"
       >
-        <div className="flex items-center gap-3 bg-forest-900 px-5 py-4 text-ivory">
+        <div className="flex items-center gap-3 bg-deep-900 px-5 py-4 text-ivory">
           <LotusMark className="h-8 w-8 text-gold-light" />
           <div>
             <p className="font-display text-lg leading-none">Madhu</p>
@@ -80,7 +80,7 @@ export function Chatbot() {
               <div
                 className={cn(
                   "rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
-                  m.from === "user" ? "rounded-br-sm bg-forest-800 text-ivory" : "rounded-bl-sm border border-sand bg-ivory text-ink"
+                  m.from === "user" ? "rounded-br-sm bg-deep-800 text-ivory" : "rounded-bl-sm border border-sand bg-surface text-ink"
                 )}
               >
                 {m.text}
@@ -88,7 +88,7 @@ export function Chatbot() {
               {m.products && (
                 <div className="mt-2 space-y-2">
                   {m.products.map((p) => (
-                    <Link key={p.slug} href={`/product/${p.slug}`} className="flex items-center gap-3 rounded-xl border border-sand bg-ivory p-2 transition hover:border-forest-300">
+                    <Link key={p.slug} href={`/product/${p.slug}`} className="flex items-center gap-3 rounded-xl border border-sand bg-surface p-2 transition hover:border-forest-300">
                       {p.images[0] && <img src={p.images[0]} alt="" className="h-10 w-10 rounded-lg object-cover" />}
                       <span className="flex-1 text-xs font-medium text-ink">{p.name}</span>
                       <span className="text-xs font-semibold text-forest-800">{inr(p.price)}</span>
@@ -111,14 +111,14 @@ export function Chatbot() {
               )}
             </div>
           ))}
-          {busy && <div className="self-start rounded-2xl rounded-bl-sm border border-sand bg-ivory px-4 py-2.5 text-sm text-bark/50">…</div>}
+          {busy && <div className="self-start rounded-2xl rounded-bl-sm border border-sand bg-surface px-4 py-2.5 text-sm text-bark/50">…</div>}
         </div>
         <form
           onSubmit={(e) => {
             e.preventDefault();
             void send(input);
           }}
-          className="flex items-center gap-2 border-t border-sand bg-ivory p-3"
+          className="flex items-center gap-2 border-t border-sand bg-surface p-3"
         >
           <input
             value={input}
@@ -127,7 +127,7 @@ export function Chatbot() {
             aria-label="Chat message"
             className="flex-1 rounded-full border border-sand-dark bg-cream px-4 py-2.5 text-sm outline-none focus:border-forest-400"
           />
-          <button type="submit" aria-label="Send" className="rounded-full bg-forest-800 p-2.5 text-ivory transition hover:bg-forest-700">
+          <button type="submit" aria-label="Send" className="rounded-full bg-deep-800 p-2.5 text-ivory transition hover:bg-deep-700">
             <Send className="h-4 w-4" />
           </button>
         </form>

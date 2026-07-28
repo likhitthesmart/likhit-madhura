@@ -255,7 +255,7 @@ function CommentsTab() {
                 <div className="min-w-0">
                   <p className="text-sm text-ivory/80">{c.body}</p>
                   <p className="mt-2 text-xs text-ivory/40">
-                    {c.name} ({c.email}) on <span className="text-forest-300">{c.post.title}</span>
+                    {c.name} ({c.email}) on <span className="text-sage">{c.post.title}</span>
                     {c.approved != null && (
                       <span className="ml-2">
                         <StatusBadge status={c.approved ? "APPROVED" : "PENDING"} />

@@ -6,6 +6,7 @@ import { ChevronLeft, Printer } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/store/auth";
 import { inr, dateLong, cn } from "@/lib/format";
+import { Invoice } from "@/components/commerce/invoice";
 
 interface FullOrder {
   id: string; orderNo: string; status: string; paymentStatus: string;
@@ -35,6 +36,7 @@ export default function OrderDetailPage() {
 
   return (
     <div className="space-y-6">
+      <Invoice order={order} />
       <div className="flex items-center justify-between">
         <Link href="/account/orders" className="inline-flex items-center gap-1 text-sm font-medium text-forest-800 hover:underline"><ChevronLeft className="h-4 w-4" /> All orders</Link>
         <button onClick={() => window.print()} className="btn-secondary px-4 py-2 text-xs"><Printer className="h-3.5 w-3.5" /> Invoice</button>
@@ -90,7 +92,7 @@ export default function OrderDetailPage() {
         <ul className="mt-4 space-y-4 border-l-2 border-sand pl-5">
           {[...order.timeline].reverse().map((t, i) => (
             <li key={i} className="relative">
-              <span className="absolute -left-[1.65rem] top-1 h-3 w-3 rounded-full border-2 border-ivory bg-forest-600" />
+              <span className="absolute -left-[1.65rem] top-1 h-3 w-3 rounded-full border-2 border-surface bg-deep-600" />
               <p className="text-sm font-semibold text-forest-900">{t.status}</p>
               {t.note && <p className="text-xs text-bark/70">{t.note}</p>}
               <p className="text-[0.7rem] text-bark/50">{new Date(t.at).toLocaleString("en-IN")}</p>

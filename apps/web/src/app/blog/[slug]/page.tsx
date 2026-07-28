@@ -82,7 +82,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <h2 className="font-display text-2xl text-forest-900">Keep reading</h2>
           <div className="mt-5 grid gap-4 sm:grid-cols-3">
             {more.map((m) => (
-              <Link key={m.slug} href={`/blog/${m.slug}`} className="group block overflow-hidden rounded-2xl border border-sand bg-ivory">
+              <Link key={m.slug} href={`/blog/${m.slug}`} className="group block overflow-hidden rounded-2xl border border-sand bg-surface">
                 <div className="relative aspect-video overflow-hidden">
                   {m.cover && <Image src={m.cover} alt="" fill sizes="240px" className="object-cover transition-transform duration-500 group-hover:scale-105" />}
                 </div>

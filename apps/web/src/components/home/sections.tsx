@@ -29,7 +29,7 @@ export function BrandIntro() {
             <div className="overflow-hidden rounded-organic shadow-lift">
               <Image src="/media/story/heritage.jpg" alt="Traditional South Indian home with brass vessels of grains" width={640} height={800} className="h-auto w-full object-cover" />
             </div>
-            <div className="absolute -bottom-8 -right-4 hidden w-56 overflow-hidden rounded-organic border-4 border-ivory shadow-lift sm:block">
+            <div className="absolute -bottom-8 -right-4 hidden w-56 overflow-hidden rounded-organic border-4 border-surface shadow-lift sm:block">
               <Image src="/media/story/process.jpg" alt="Wooden cold press ghani with oil" width={280} height={350} className="h-auto w-full object-cover" />
             </div>
           </div>
@@ -90,13 +90,13 @@ const whys = [
 
 export function WhyMadhura() {
   return (
-    <section className="bg-forest-900 py-24">
+    <section className="bg-deep-900 py-24">
       <div className="container-page">
         <SectionHeading light eyebrow="Why Madhura" title="Purity is a practice, not a promise" sub="Seven generations of food wisdom, held to modern laboratory standards." />
         <Stagger className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {whys.map((w) => (
             <StaggerItem key={w.title}>
-              <div className="group h-full rounded-organic border border-ivory/10 bg-ivory/5 p-7 backdrop-blur transition-all duration-500 hover:border-gold/40 hover:bg-ivory/10">
+              <div className="group h-full rounded-organic border border-surface/10 bg-surface/5 p-7 backdrop-blur transition-all duration-500 hover:border-gold/40 hover:bg-surface/10">
                 <w.icon className="h-8 w-8 text-gold-light transition-transform duration-500 group-hover:scale-110" />
                 <h3 className="mt-5 font-display text-2xl text-ivory">{w.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-ivory/65">{w.text}</p>
@@ -122,7 +122,7 @@ export function FeaturedCategories({ categories }: { categories: Category[] }) {
                 {c.image && (
                   <Image src={c.image} alt={c.name} fill sizes="(max-width: 1024px) 50vw, 25vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-forest-950/80 via-forest-950/10 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-deep-950/80 via-deep-950/10 to-transparent" />
               </div>
               <div className="absolute inset-x-0 bottom-0 p-5 text-ivory">
                 <h3 className="font-display text-xl sm:text-2xl">{c.name}</h3>
@@ -180,7 +180,7 @@ export function FarmJourney() {
                 <Image src={j.img} alt={j.title} fill sizes="(max-width: 1024px) 100vw, 33vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
                 <span className="absolute left-5 top-5 font-display text-5xl font-semibold text-ivory/90 drop-shadow">{j.step}</span>
               </div>
-              <div className="bg-ivory p-6">
+              <div className="bg-surface p-6">
                 <h3 className="font-display text-2xl text-forest-900">{j.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-bark/70">{j.text}</p>
               </div>
@@ -202,16 +202,18 @@ const certs = [
 
 export function Certifications() {
   return (
-    <section className="border-y border-sand bg-ivory py-16">
+    <section className="border-y border-sand bg-surface py-16">
       <div className="container-page">
-        <Stagger className="grid grid-cols-2 gap-8 lg:grid-cols-4">
+        {/* single column under 480px: two columns leave ~56px beside the 56px icon,
+            which is narrower than the longest word in these labels */}
+        <Stagger className="grid grid-cols-1 gap-6 min-[480px]:grid-cols-2 sm:gap-8 lg:grid-cols-4">
           {certs.map((c) => (
             <StaggerItem key={c.title}>
               <div className="flex items-center gap-4">
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-gold/40 bg-cream text-gold-dark">
                   <c.icon className="h-6 w-6" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="font-display text-lg text-forest-900">{c.title}</p>
                   <p className="text-xs text-bark/60">{c.text}</p>
                 </div>
@@ -235,7 +237,7 @@ export function Testimonials({ testimonials }: { testimonials: Testimonial[] }) 
         <Stagger className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {testimonials.slice(0, 6).map((t) => (
             <StaggerItem key={t.id}>
-              <figure className="flex h-full flex-col rounded-organic border border-sand bg-ivory p-7 shadow-card">
+              <figure className="flex h-full flex-col rounded-organic border border-sand bg-surface p-7 shadow-card">
                 <div className="flex gap-1 text-gold" aria-label={`${t.rating} out of 5 stars`}>
                   {Array.from({ length: t.rating }).map((_, i) => (
                     <Star key={i} className="h-4 w-4 fill-current" />
@@ -279,7 +281,7 @@ export function InstagramGallery() {
               className="group relative block aspect-square overflow-hidden rounded-2xl"
             >
               <Image src={s.img} alt={s.alt} fill sizes="(max-width: 640px) 50vw, 17vw" className="object-cover transition-transform duration-700 group-hover:scale-110" />
-              <div className="absolute inset-0 bg-forest-950/0 transition-colors duration-500 group-hover:bg-forest-950/30" />
+              <div className="absolute inset-0 bg-deep-950/0 transition-colors duration-500 group-hover:bg-deep-950/30" />
             </a>
           </StaggerItem>
         ))}
@@ -299,7 +301,7 @@ export function BlogPreview({ posts }: { posts: BlogCard[] }) {
         <Stagger className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {posts.slice(0, 4).map((b) => (
             <StaggerItem key={b.slug}>
-              <Link href={`/blog/${b.slug}`} className="group block overflow-hidden rounded-organic border border-sand bg-ivory shadow-card transition-all duration-500 hover:-translate-y-1 hover:shadow-lift">
+              <Link href={`/blog/${b.slug}`} className="group block overflow-hidden rounded-organic border border-sand bg-surface shadow-card transition-all duration-500 hover:-translate-y-1 hover:shadow-lift">
                 <div className="relative aspect-[16/10] overflow-hidden">
                   {b.cover && <Image src={b.cover} alt="" fill sizes="(max-width: 1024px) 100vw, 25vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />}
                 </div>
@@ -326,7 +328,7 @@ export function FaqSection({ faqs }: { faqs: FaqItem[] }) {
   return (
     <section className="container-page py-24">
       <SectionHeading eyebrow="Good questions" title="Asked, answered" />
-      <div className="mx-auto mt-12 max-w-3xl divide-y divide-sand rounded-organic border border-sand bg-ivory shadow-card">
+      <div className="mx-auto mt-12 max-w-3xl divide-y divide-sand rounded-organic border border-sand bg-surface shadow-card">
         {faqs.map((f) => {
           const isOpen = open === f.id;
           return (
@@ -360,7 +362,7 @@ export function NewsletterBanner({ children }: { children: React.ReactNode }) {
   return (
     <section className="relative overflow-hidden py-24">
       <Image src="/media/story/newsletter-bg.jpg" alt="" fill sizes="100vw" className="object-cover" aria-hidden />
-      <div className="absolute inset-0 bg-forest-950/70" />
+      <div className="absolute inset-0 bg-deep-950/70" />
       <Reveal className="container-page relative z-10 flex flex-col items-center text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.4em] text-gold-light">Stay close to the harvest</p>
         <h2 className="mt-3 max-w-xl font-display text-4xl font-medium text-ivory sm:text-5xl">Letters from the farm, twice a month</h2>

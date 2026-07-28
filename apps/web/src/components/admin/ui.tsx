@@ -127,7 +127,7 @@ export function StatCard({ label, value, hint }: { label: string; value: ReactNo
     <div className="rounded-2xl border border-white/5 bg-[#1c2216] p-4 shadow-soft transition-colors hover:border-gold/20">
       <p className="text-[11px] font-medium uppercase tracking-wider text-ivory/40">{label}</p>
       <p className="mt-1.5 font-display text-2xl font-semibold text-ivory">{value}</p>
-      {hint && <p className="mt-0.5 text-xs text-forest-300">{hint}</p>}
+      {hint && <p className="mt-0.5 text-xs text-sage">{hint}</p>}
     </div>
   );
 }
@@ -162,7 +162,7 @@ export const rowCls = "transition-colors hover:bg-white/[0.03]";
 /* ---------- buttons ---------- */
 
 export const btnPrimary =
-  "inline-flex items-center gap-1.5 rounded-lg bg-gold px-3.5 py-2 text-sm font-semibold text-forest-950 transition-colors hover:bg-gold-light disabled:opacity-50";
+  "inline-flex items-center gap-1.5 rounded-lg bg-gold px-3.5 py-2 text-sm font-semibold text-deep-950 transition-colors hover:bg-gold-light disabled:opacity-50";
 export const btnGhost =
   "inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-sm text-ivory/70 transition-colors hover:border-gold/40 hover:text-ivory disabled:opacity-50";
 
@@ -216,19 +216,46 @@ export function Modal({
   children: ReactNode;
   wide?: boolean;
 }) {
+  // Lock the page behind the dialog: without this the wheel scrolls the admin
+  // table under the overlay once the dialog's own content reaches its end.
+  // The padding replaces the width the scrollbar gave up, so nothing shifts.
+  useEffect(() => {
+    const { body } = document;
+    const prevOverflow = body.style.overflow;
+    const prevPadding = body.style.paddingRight;
+    const gap = window.innerWidth - document.documentElement.clientWidth;
+    body.style.overflow = "hidden";
+    if (gap > 0) body.style.paddingRight = `${gap}px`;
+    return () => {
+      body.style.overflow = prevOverflow;
+      body.style.paddingRight = prevPadding;
+    };
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
+      {/* The panel is capped to the viewport and owns the scrolling, rather than
+          the overlay doing it — the scrollable element is then the one directly
+          under the pointer, and the title bar stays put on long content. */}
       <div
         className={cn(
-          "my-8 w-full rounded-2xl border border-white/10 bg-[#1c2216] p-6 shadow-lift",
+          "flex max-h-[calc(100vh-2rem)] w-full flex-col rounded-2xl border border-white/10 bg-[#1c2216] shadow-lift",
           wide ? "max-w-3xl" : "max-w-lg"
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-5 flex items-center justify-between">
+        <div className="flex shrink-0 items-center justify-between border-b border-white/10 px-6 py-4">
           <h2 className="font-display text-xl font-semibold text-ivory">{title}</h2>
           <button
             type="button"
@@ -239,7 +266,9 @@ export function Modal({
             <X className="h-4 w-4" />
           </button>
         </div>
-        {children}
+        {/* min-h-0 lets this flex child shrink below its content height; without
+            it the panel grows past the cap and nothing scrolls at all. */}
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-6">{children}</div>
       </div>
     </div>
   );
@@ -432,7 +461,7 @@ export function Sparkline({ values, className }: { values: number[]; className?:
   const points = values.map((v, i) => `${i * step},${28 - (v / max) * 26}`).join(" ");
   return (
     <svg viewBox="0 0 100 30" preserveAspectRatio="none" className={cn("h-8 w-full", className)}>
-      <polyline points={points} fill="none" strokeWidth="1.5" className="stroke-forest-300" vectorEffect="non-scaling-stroke" />
+      <polyline points={points} fill="none" strokeWidth="1.5" className="stroke-sage" vectorEffect="non-scaling-stroke" />
     </svg>
   );
 }
@@ -440,7 +469,7 @@ export function Sparkline({ values, className }: { values: number[]; className?:
 /** Horizontal bar breakdown (traffic sources, devices, funnels…). */
 export function Bars({
   items,
-  color = "bg-forest-300/70",
+  color = "bg-sage/70",
 }: {
   items: { label: string; value: number; hint?: string }[];
   color?: string;

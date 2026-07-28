@@ -32,7 +32,10 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
     <div className="container-page pb-24 pt-28">
       <h1 className="font-display text-4xl font-medium text-forest-900">Namaste, {user.name.split(" ")[0]}</h1>
       <div className="mt-8 grid gap-8 lg:grid-cols-[240px_1fr]">
-        <aside className="card-organic h-fit p-3 lg:sticky lg:top-24">
+        {/* min-w-0: a grid item defaults to min-width:auto and would stretch to fit
+            all seven links, pushing the page ~470px wide on a phone. Shrinking it
+            is what lets the nav's own overflow-x-auto actually scroll. */}
+        <aside className="card-organic h-fit min-w-0 p-3 lg:sticky lg:top-24">
           <nav className="flex gap-1 overflow-x-auto lg:flex-col" aria-label="Account">
             {nav.map((n) => (
               <Link
@@ -40,7 +43,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
                 href={n.href}
                 className={cn(
                   "flex shrink-0 items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition",
-                  pathname === n.href ? "bg-forest-800 text-ivory" : "text-bark hover:bg-cream"
+                  pathname === n.href ? "bg-deep-800 text-ivory" : "text-bark hover:bg-cream"
                 )}
               >
                 <n.icon className="h-4 w-4" /> {n.label}
@@ -54,7 +57,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
             </button>
           </nav>
         </aside>
-        <div>{children}</div>
+        <div className="min-w-0">{children}</div>
       </div>
     </div>
   );

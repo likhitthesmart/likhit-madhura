@@ -1,10 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api, type User } from "@/lib/api";
 import { useAuth } from "@/store/auth";
 import { AuthCard } from "@/components/ui/auth-card";
+import { GoogleButton } from "@/components/ui/google-button";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,6 +15,14 @@ export default function LoginPage() {
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  // The Google callback redirects here with ?error=. Read it after mount, never in
+  // the initial state — the server renders without a URL query, so branching on
+  // `window` there makes the first client render disagree and breaks hydration.
+  useEffect(() => {
+    const fromCallback = new URLSearchParams(window.location.search).get("error");
+    if (fromCallback) setError(fromCallback);
+  }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +54,7 @@ export default function LoginPage() {
         {error && <p className="text-sm text-copper">{error}</p>}
         <button disabled={busy} className="btn-primary w-full">{busy ? "Signing in…" : "Sign in"}</button>
       </form>
+      <GoogleButton label="Sign in with Google" />
       <p className="mt-6 text-center text-sm text-bark/70">
         New to Madhura? <Link href="/signup" className="font-semibold text-forest-800 hover:underline">Create an account</Link>
       </p>

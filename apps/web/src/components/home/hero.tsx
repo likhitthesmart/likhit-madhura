@@ -12,7 +12,7 @@ export function Hero() {
   const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
   return (
-    <section ref={ref} className="relative h-[100svh] min-h-[560px] overflow-hidden bg-forest-950" aria-label="Madhura Naturals">
+    <section ref={ref} className="relative h-[100svh] min-h-[560px] overflow-hidden bg-deep-950" aria-label="Madhura Naturals">
       <motion.div style={reduce ? undefined : { y }} className="absolute inset-0">
         <video
           className="h-full w-full object-cover"
@@ -25,7 +25,7 @@ export function Hero() {
         >
           <source src="/media/hero/hero-video.mp4" type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-forest-950/40 via-forest-950/20 to-forest-950/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-deep-950/40 via-deep-950/20 to-deep-950/70" />
       </motion.div>
 
       <motion.div style={reduce ? undefined : { opacity }} className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center text-ivory">
@@ -40,7 +40,7 @@ export function Hero() {
         </p>
         <div className="animate-rise mt-9 flex flex-wrap items-center justify-center gap-4" style={{ animationDelay: "0.85s" }}>
           <Link href="/shop" className="btn-gold px-9 py-3.5 text-base">Shop the Harvest</Link>
-          <Link href="/about" className="btn-secondary border-ivory/40 px-9 py-3.5 text-base text-ivory hover:bg-ivory/10">
+          <Link href="/about" className="btn-secondary border-ivory/40 px-9 py-3.5 text-base text-ivory hover:bg-surface/10">
             Our Story
           </Link>
         </div>

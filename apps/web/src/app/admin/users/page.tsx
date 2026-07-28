@@ -17,6 +17,7 @@ import {
   rowCls,
   useAdminFetch,
 } from "@/components/admin/ui";
+import { CustomerDetail } from "@/components/admin/customer-detail";
 
 interface AdminUser {
   id: string;
@@ -37,6 +38,7 @@ export default function UsersPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [msg, setMsg] = useState<string | null>(null);
+  const [openUser, setOpenUser] = useState<string | null>(null);
 
   const { data, error, loading, reload } = useAdminFetch<{ users: AdminUser[]; total: number; pages: number }>(
     `/admin/users?q=${encodeURIComponent(search)}&page=${page}`
@@ -77,7 +79,15 @@ export default function UsersPage() {
             <Table head={["Customer", "Contact", "Orders", "Role", "Status", "Last login", "Joined"]}>
               {data.users.map((u) => (
                 <tr key={u.id} className={rowCls}>
-                  <Td className="font-medium text-ivory">{u.name}</Td>
+                  <Td className="font-medium text-ivory">
+                    <button
+                      type="button"
+                      onClick={() => setOpenUser(u.id)}
+                      className="text-left underline-offset-4 transition-colors hover:text-gold hover:underline"
+                    >
+                      {u.name}
+                    </button>
+                  </Td>
                   <Td>
                     <p className="text-ivory/70">{u.email}</p>
                     {u.phone && <p className="text-xs text-ivory/40">{u.phone}</p>}
@@ -125,6 +135,8 @@ export default function UsersPage() {
           <EmptyState label="No users found" />
         )}
       </Panel>
+
+      {openUser && <CustomerDetail userId={openUser} onClose={() => setOpenUser(null)} />}
     </div>
   );
 }

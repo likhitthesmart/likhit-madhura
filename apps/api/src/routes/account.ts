@@ -24,7 +24,9 @@ accountRouter.post(
   wrap(async (req, res) => {
     const body = z.object({ current: z.string(), password: z.string().min(8).max(100) }).parse(req.body);
     const user = await prisma.user.findUnique({ where: { id: req.auth!.userId } });
-    if (!user || !(await bcrypt.compare(body.current, user.passwordHash)))
+    // Google-only accounts have no password to compare — they set one via forgot-password
+    if (!user?.passwordHash) throw new HttpError(400, "This account signs in with Google. Use “Forgot password” to set one.");
+    if (!(await bcrypt.compare(body.current, user.passwordHash)))
       throw new HttpError(400, "Current password is incorrect");
     await prisma.user.update({
       where: { id: user.id },

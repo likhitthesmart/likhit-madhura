@@ -10,7 +10,10 @@
     "postinstall": "prisma generate",
     "prisma:push": "prisma db push",
     "seed": "tsx src/seed.ts",
-    "dev:db": "tsx scripts/dev-db.ts"
+    "check:payment": "tsx src/lib/payment.check.ts",
+    "check:openapi": "tsx src/openapi.check.ts",
+    "check:google": "tsx src/routes/auth.check.ts",
+    "check:mail": "tsx src/lib/mailer.check.ts"
   },
   "prisma": {
     "seed": "tsx src/seed.ts"
@@ -28,6 +31,7 @@
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.9.16",
     "prisma": "^6.3.0",
+    "swagger-ui-express": "^5.0.1",
     "zod": "^3.24.1"
   },
   "devDependencies": {
@@ -39,7 +43,7 @@
     "@types/node": "^22.10.5",
     "@types/nodemailer": "^6.4.17",
     "@types/pg": "^8.20.0",
-    "embedded-postgres": "^18.4.0-beta.17",
+    "@types/swagger-ui-express": "^4.1.8",
     "pg": "^8.22.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"

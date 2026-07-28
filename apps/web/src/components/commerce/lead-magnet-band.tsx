@@ -9,7 +9,7 @@ export function LeadMagnetBand() {
   return (
     <section className="relative overflow-hidden py-24">
       <Image src="/media/story/newsletter-bg.jpg" alt="" fill sizes="100vw" className="object-cover" aria-hidden />
-      <div className="absolute inset-0 bg-forest-950/75" />
+      <div className="absolute inset-0 bg-deep-950/75" />
       <Reveal className="container-page relative z-10 flex flex-col items-center text-center">
         <p className="rounded-full border border-gold/40 bg-gold/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-gold-light">
           10% off your first order

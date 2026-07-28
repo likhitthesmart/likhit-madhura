@@ -1,6 +1,7 @@
 "use client";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist, type PersistStorage } from "zustand/middleware";
+import { useAuth } from "@/store/auth";
 
 export interface CartItem {
   productId: string;
@@ -27,6 +28,14 @@ interface CartState {
   setCoupon: (code: string | null) => void;
   setPincode: (pin: string | null) => void;
   clear: () => void;
+}
+
+const userStorage = createJSONStorage<CartState>(() => localStorage);
+const noStorage: PersistStorage<CartState> = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+
+// One storage key per signed-in user, so a cart never leaks between accounts on a shared device.
+function cartKey(userId: string | null) {
+  return userId ? `madhura-cart-${userId}` : "madhura-cart-guest";
 }
 
 export const useCart = create<CartState>()(
@@ -74,8 +83,19 @@ export const useCart = create<CartState>()(
       setPincode: (pincode) => set({ pincode }),
       clear: () => set({ items: [], couponCode: null }),
     }),
-    { name: "madhura-cart" }
+    // guests start with an empty basket and leave nothing behind: no persistence until sign-in
+    { name: cartKey(null), storage: noStorage }
   )
 );
 
 export const cartCount = (items: CartItem[]) => items.reduce((n, i) => n + i.qty, 0);
+
+const empty = { items: [], savedForLater: [], couponCode: null, pincode: null };
+
+useAuth.subscribe((s, prev) => {
+  const id = s.user?.id ?? null;
+  if (id === (prev.user?.id ?? null)) return;
+  const stored = id ? userStorage?.getItem(cartKey(id)) : null;
+  useCart.persist.setOptions({ name: cartKey(id), storage: id ? userStorage : noStorage });
+  void Promise.resolve(stored).then((v) => useCart.setState({ ...empty, ...v?.state }));
+});

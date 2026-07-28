@@ -58,18 +58,24 @@ export function ProductCard({ product }: { product: Product }) {
               className="object-cover transition-transform duration-700 group-hover:scale-105"
             />
           )}
-          {off > 0 && (
-            <span className="absolute left-3 top-3 rounded-full bg-copper px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-wide text-ivory">
-              {off}% off
-            </span>
-          )}
-          {product.bestSeller && (
-            <span className="absolute right-3 top-3 rounded-full bg-gold px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-wide text-ivory">
-              Bestseller
-            </span>
+          {/* one wrapping row rather than two absolute corners — pinned left and right,
+              the two badges collided in the 2-column phone grid */}
+          {(off > 0 || product.bestSeller) && (
+            <div className="absolute inset-x-3 top-3 flex flex-wrap items-start gap-1.5 pr-10">
+              {off > 0 && (
+                <span className="rounded-full bg-copper px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-wide text-ivory">
+                  {off}% off
+                </span>
+              )}
+              {product.bestSeller && (
+                <span className="rounded-full bg-gold px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-wide text-ivory">
+                  Bestseller
+                </span>
+              )}
+            </div>
           )}
           {product.stock === 0 && (
-            <span className="absolute inset-0 flex items-center justify-center bg-ivory/70 font-display text-lg text-bark">
+            <span className="absolute inset-0 flex items-center justify-center bg-surface/70 font-display text-lg text-bark">
               Out of stock
             </span>
           )}
@@ -79,11 +85,13 @@ export function ProductCard({ product }: { product: Product }) {
         onClick={toggleWish}
         aria-label="Add to wishlist"
         className={cn(
-          "absolute right-3 top-12 z-10 rounded-full bg-ivory/90 p-2 opacity-0 shadow-card backdrop-blur transition-all duration-300 group-hover:opacity-100",
-          wished && "opacity-100"
+          // always visible on touch (there is no hover to reveal it); p-2.5 keeps the
+          // tap target at 40px rather than the 32px it was
+          "absolute right-2 top-2 z-10 rounded-full bg-surface/90 p-2.5 shadow-card backdrop-blur transition-all duration-300 lg:opacity-0 lg:group-hover:opacity-100",
+          wished && "lg:opacity-100"
         )}
       >
-        <Heart className={cn("h-4 w-4", wished ? "fill-copper text-copper" : "text-bark")} />
+        <Heart className={cn("h-5 w-5", wished ? "fill-copper text-copper" : "text-bark")} />
       </button>
       <div className="p-4">
         <p className="text-[0.7rem] uppercase tracking-widest text-bark/50">{product.category?.name}</p>
@@ -111,7 +119,7 @@ export function ProductCard({ product }: { product: Product }) {
             aria-label={`Add ${product.name} to cart`}
             className={cn(
               "rounded-full p-2.5 transition-all duration-300",
-              added ? "bg-forest-700 text-ivory" : "bg-forest-50 text-forest-800 hover:bg-forest-800 hover:text-ivory",
+              added ? "bg-deep-700 text-ivory" : "bg-forest-50 text-forest-800 hover:bg-deep-800 hover:text-ivory",
               product.stock === 0 && "opacity-40"
             )}
           >

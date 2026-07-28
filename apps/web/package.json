@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
+    "check:contrast": "node scripts/check-contrast.mjs",
+    "check:logo": "node scripts/check-logo.mjs",
     "lint": "next lint"
   },
   "dependencies": {

@@ -54,7 +54,7 @@ function Gallery({ product }: { product: Product }) {
               className={cn("relative h-20 w-20 overflow-hidden rounded-xl border-2 transition", i === active ? "border-forest-600" : "border-transparent opacity-70")}
             >
               {m.type === "video" ? (
-                <span className="flex h-full w-full items-center justify-center bg-forest-900 text-xs text-ivory">▶</span>
+                <span className="flex h-full w-full items-center justify-center bg-deep-900 text-xs text-ivory">▶</span>
               ) : (
                 <Image src={m.src} alt="" fill sizes="80px" className="object-cover" />
               )}
@@ -210,7 +210,7 @@ export function ProductDetail({ product }: { product: Product }) {
               <span className="w-10 text-center text-sm font-semibold">{qty}</span>
               <button onClick={() => setQty(Math.min(20, qty + 1))} aria-label="Increase quantity" className="p-3 text-bark hover:text-forest-800"><Plus className="h-4 w-4" /></button>
             </div>
-            <button onClick={addToCart} disabled={product.stock === 0} className={cn("btn-primary flex-1 sm:flex-none sm:px-12", added && "bg-forest-600")}>
+            <button onClick={addToCart} disabled={product.stock === 0} className={cn("btn-primary flex-1 sm:flex-none sm:px-12", added && "bg-deep-600")}>
               {added ? (<><Check className="h-4 w-4" /> Added</>) : (<><ShoppingBag className="h-4 w-4" /> Add to cart</>)}
             </button>
           </div>
@@ -351,7 +351,7 @@ export function ProductDetail({ product }: { product: Product }) {
           <h2 className="font-display text-3xl text-forest-900">Recently viewed</h2>
           <div className="mt-6 flex gap-4 overflow-x-auto pb-2">
             {others.map((r) => (
-              <Link key={r.slug} href={`/product/${r.slug}`} className="w-40 shrink-0 rounded-2xl border border-sand bg-ivory p-3 transition hover:shadow-card">
+              <Link key={r.slug} href={`/product/${r.slug}`} className="w-40 shrink-0 rounded-2xl border border-sand bg-surface p-3 transition hover:shadow-card">
                 {r.image && <img src={r.image} alt="" className="aspect-square w-full rounded-xl object-cover" />}
                 <p className="mt-2 line-clamp-2 text-xs font-medium text-ink">{r.name}</p>
                 <p className="mt-1 text-xs font-semibold text-forest-800">{inr(r.price)}</p>

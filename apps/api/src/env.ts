@@ -6,14 +6,29 @@ const req = (key: string, fallback?: string): string => {
   return v;
 };
 
+const siteUrl = (process.env.SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+
 export const env = {
   nodeEnv: process.env.NODE_ENV ?? "development",
   port: Number(process.env.PORT ?? 4000),
   databaseUrl: req("DATABASE_URL"),
   jwtAccessSecret: req("JWT_ACCESS_SECRET", "dev_access_secret_change_me"),
   jwtRefreshSecret: req("JWT_REFRESH_SECRET", "dev_refresh_secret_change_me"),
-  siteUrl: process.env.SITE_URL ?? "http://localhost:3000",
+  siteUrl,
   paymentProvider: process.env.PAYMENT_PROVIDER ?? "mock",
+  razorpay: {
+    // test keys start rzp_test_, live keys rzp_live_ — same API, no mode flag
+    keyId: process.env.RAZORPAY_KEY_ID ?? "",
+    keySecret: process.env.RAZORPAY_KEY_SECRET ?? "",
+    webhookSecret: process.env.RAZORPAY_WEBHOOK_SECRET ?? "",
+  },
+  google: {
+    clientId: process.env.GOOGLE_CLIENT_ID ?? "",
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+    // derived, not configurable — it must match an Authorised redirect URI in the
+    // Google console exactly, and a second env var is a second thing to get wrong
+    redirectUri: `${siteUrl}/api/v1/auth/google/callback`,
+  },
   smtp: {
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT ?? 587),

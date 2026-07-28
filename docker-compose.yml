@@ -1,32 +1,18 @@
 services:
-  db:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: madhura
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-madhura_dev}
-      POSTGRES_DB: madhura
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U madhura"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-    ports:
-      - "127.0.0.1:5432:5432"
-
   api:
     build: ./apps/api
     restart: unless-stopped
     environment:
       NODE_ENV: production
       PORT: "4000"
-      DATABASE_URL: postgresql://madhura:${DB_PASSWORD:-madhura_dev}@db:5432/madhura
+      DATABASE_URL: ${DATABASE_URL}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       SITE_URL: ${SITE_URL}
       PAYMENT_PROVIDER: ${PAYMENT_PROVIDER:-mock}
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET}
+      RAZORPAY_WEBHOOK_SECRET: ${RAZORPAY_WEBHOOK_SECRET}
       SMTP_HOST: ${SMTP_HOST}
       SMTP_PORT: ${SMTP_PORT}
       SMTP_USER: ${SMTP_USER}
@@ -35,9 +21,8 @@ services:
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
-    depends_on:
-      db:
-        condition: service_healthy
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     expose:
       - "4000"
 
@@ -70,6 +55,3 @@ services:
     depends_on:
       - web
       - api
-
-volumes:
-  db_data:

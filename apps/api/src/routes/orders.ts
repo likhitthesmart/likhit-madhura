@@ -4,8 +4,8 @@ import { prisma } from "../prisma";
 import { wrap, HttpError } from "../middleware/error";
 import { requireAuth } from "../middleware/auth";
 import { quoteCart } from "../lib/pricing";
-import { paymentProvider, PAYMENT_WINDOW_MINUTES } from "../lib/payment";
-import { orderNo, pushTimeline, rupees } from "../lib/util";
+import { paymentProvider, verifyWebhook, PAYMENT_WINDOW_MINUTES } from "../lib/payment";
+import { orderNo, pushTimeline } from "../lib/util";
 import { sendMail, mailTemplates } from "../lib/mailer";
 
 export const cartRouter = Router();
@@ -118,9 +118,10 @@ ordersRouter.post(
       where: { id: order.id },
       data: { paymentProvider: intent.provider, paymentRef: intent.ref },
     });
+    void sendMail(order.email, `Order ${order.orderNo} received — Madhura Naturals`, mailTemplates.orderPlaced(order));
     res.status(201).json({
       order: { id: order.id, orderNo: order.orderNo, total: order.total, paymentExpiresAt: order.paymentExpiresAt },
-      payment: intent.clientPayload,
+      payment: { provider: intent.provider, ...intent.clientPayload },
     });
   })
 );
@@ -141,7 +142,26 @@ const restock = async (orderId: string) => {
   }
 };
 
-// payment confirmation (mock gateway; real gateways verify signature in provider.verify)
+/** PENDING → PAID transition. Idempotent: a second call (webhook racing the
+ *  browser callback) returns without double-counting sales or re-mailing. */
+const markPaid = async (order: Awaited<ReturnType<typeof findOrder>>) => {
+  const { count } = await prisma.order.updateMany({
+    where: { id: order.id, paymentStatus: { not: "PAID" } },
+    data: {
+      paymentStatus: "PAID",
+      status: "PROCESSING",
+      timeline: pushTimeline(order.timeline, "PROCESSING", "Payment received, order confirmed"),
+    },
+  });
+  if (count === 0) return false;
+  for (const item of order.items)
+    await prisma.product.update({ where: { id: item.productId }, data: { soldCount: { increment: item.qty } } });
+  void sendMail(order.email, `Order ${order.orderNo} confirmed — Madhura Naturals`, mailTemplates.orderConfirmed(order));
+  return true;
+};
+
+// payment confirmation — body carries the gateway's callback payload
+// (razorpay_order_id / razorpay_payment_id / razorpay_signature for Razorpay)
 ordersRouter.post(
   "/:id/pay",
   wrap(async (req, res) => {
@@ -154,23 +174,40 @@ ordersRouter.post(
           where: { id: order.id },
           data: { paymentStatus: "EXPIRED", status: "CANCELLED", timeline: pushTimeline(order.timeline, "CANCELLED", "Payment window expired") },
         });
+        const mail = mailTemplates.orderStatus({
+          ...order,
+          status: "CANCELLED",
+          note: "Payment was not completed in time, so we released the items back to stock. You are welcome to order again.",
+        });
+        if (mail) void sendMail(order.email, mail.subject, mail.html);
       }
       throw new HttpError(410, "Payment window expired");
     }
     const ok = await paymentProvider().verify(order.id, req.body ?? {});
     if (!ok) throw new HttpError(400, "Payment verification failed");
-    const updated = await prisma.order.update({
-      where: { id: order.id },
-      data: {
-        paymentStatus: "PAID",
-        status: "PROCESSING",
-        timeline: pushTimeline(order.timeline, "PROCESSING", "Payment received, order confirmed"),
-      },
-    });
-    for (const item of order.items)
-      await prisma.product.update({ where: { id: item.productId }, data: { soldCount: { increment: item.qty } } });
-    void sendMail(order.email, `Order ${order.orderNo} confirmed — Madhura Naturals`, mailTemplates.orderConfirmed(order.orderNo, rupees(order.total)));
-    res.json({ status: updated.paymentStatus, orderNo: order.orderNo });
+    await markPaid(order);
+    res.json({ status: "PAID", orderNo: order.orderNo });
+  })
+);
+
+// Razorpay webhook — the authoritative confirmation. Fires even if the customer
+// closes the tab before the browser callback reaches /pay.
+ordersRouter.post(
+  "/razorpay/webhook",
+  wrap(async (req, res) => {
+    const raw = (req as { rawBody?: Buffer }).rawBody;
+    if (!raw || !verifyWebhook(raw, String(req.headers["x-razorpay-signature"] ?? "")))
+      throw new HttpError(400, "Invalid webhook signature");
+    const event = req.body as { event?: string; payload?: { payment?: { entity?: { order_id?: string } } } };
+    if (event.event !== "payment.captured") return res.json({ ok: true, ignored: event.event });
+    const rzpOrderId = event.payload?.payment?.entity?.order_id;
+    const order = rzpOrderId
+      ? await prisma.order.findFirst({ where: { paymentRef: rzpOrderId }, include: { items: true } })
+      : null;
+    // 200 on unknown orders — Razorpay retries non-2xx, and a retry won't help
+    if (!order) return res.json({ ok: true, ignored: "unknown order" });
+    await markPaid(order);
+    res.json({ ok: true });
   })
 );
 
@@ -216,13 +253,20 @@ ordersRouter.get(
   })
 );
 
+/** Orders the signed-in customer owns: their own, plus guest orders placed with
+ *  their account email. Never matches an order owned by a different account. */
+const ownedBy = async (userId: string) => {
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
+  return { OR: [{ userId }, { userId: null, email: user?.email ?? "\0" }] };
+};
+
 // authenticated order history
 ordersRouter.get(
   "/mine",
   requireAuth,
   wrap(async (req, res) => {
     const orders = await prisma.order.findMany({
-      where: { userId: req.auth!.userId },
+      where: await ownedBy(req.auth!.userId),
       orderBy: { createdAt: "desc" },
       include: { items: true },
     });
@@ -235,7 +279,7 @@ ordersRouter.get(
   requireAuth,
   wrap(async (req, res) => {
     const order = await prisma.order.findFirst({
-      where: { id: req.params.id, userId: req.auth!.userId },
+      where: { id: req.params.id, ...(await ownedBy(req.auth!.userId)) },
       include: { items: true },
     });
     if (!order) throw new HttpError(404, "Order not found");

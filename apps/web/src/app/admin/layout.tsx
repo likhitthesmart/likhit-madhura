@@ -79,7 +79,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </p>
           <Link
             href="/login?next=/admin"
-            className="mt-6 inline-block rounded-lg bg-gold px-5 py-2.5 text-sm font-semibold text-forest-950 transition-colors hover:bg-gold-light"
+            className="mt-6 inline-block rounded-lg bg-gold px-5 py-2.5 text-sm font-semibold text-deep-950 transition-colors hover:bg-gold-light"
           >
             Go to sign in
           </Link>
@@ -143,7 +143,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </nav>
         <div className="border-t border-white/5 p-4 text-xs text-ivory/40">
           Storefront:{" "}
-          <Link href="/" className="text-forest-300 hover:text-gold">
+          <Link href="/" className="text-sage hover:text-gold">
             madhura naturals →
           </Link>
         </div>

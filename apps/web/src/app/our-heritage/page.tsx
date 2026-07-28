@@ -48,7 +48,7 @@ export default function HeritagePage() {
       {/* hero */}
       <section className="relative flex h-[68vh] min-h-[440px] items-end overflow-hidden">
         <Image src="/media/story/about-banner.jpg" alt="Rain-fed paddy fields and coconut palms at sunrise in South India" fill priority sizes="100vw" className="object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-forest-950/85 via-forest-950/25 to-forest-950/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-deep-950/85 via-deep-950/25 to-deep-950/40" />
         <div className="container-page relative z-10 pb-16 text-ivory">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.45em] text-gold-light">Our heritage</p>
@@ -69,7 +69,7 @@ export default function HeritagePage() {
         <Stagger className="mt-14 grid gap-6 md:grid-cols-2">
           {process.map((p, i) => (
             <StaggerItem key={p.title}>
-              <div className="flex h-full gap-5 rounded-organic border border-sand bg-ivory p-7 shadow-card">
+              <div className="flex h-full gap-5 rounded-organic border border-sand bg-surface p-7 shadow-card">
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-forest-50 text-forest-800">
                   <p.icon className="h-6 w-6" />
                 </div>
@@ -95,7 +95,7 @@ export default function HeritagePage() {
         <Stagger className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {promises.map((p) => (
             <StaggerItem key={p.title}>
-              <div className="h-full rounded-organic border border-sand bg-ivory p-7 text-center shadow-card">
+              <div className="h-full rounded-organic border border-sand bg-surface p-7 text-center shadow-card">
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-gold/40 bg-cream text-gold-dark">
                   <p.icon className="h-6 w-6" />
                 </div>

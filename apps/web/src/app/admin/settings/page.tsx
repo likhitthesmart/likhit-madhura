@@ -49,7 +49,7 @@ function AuditLogs() {
         <Table head={["Action", "Entity", "By", "When"]}>
           {data.logs.map((l) => (
             <tr key={l.id} className={rowCls}>
-              <Td className="font-medium text-forest-300">{l.action}</Td>
+              <Td className="font-medium text-sage">{l.action}</Td>
               <Td>
                 {l.entity} <span className="font-mono text-xs text-ivory/40">{l.entityId}</span>
               </Td>
