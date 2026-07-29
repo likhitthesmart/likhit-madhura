@@ -7,7 +7,11 @@ import { useAuth } from "@/store/auth";
 function useLenis() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const lenis = new Lenis({ lerp: 0.12, smoothWheel: true });
+    // allowNestedScroll: the wheel goes to whatever scrollable element is under the
+    // cursor (modal bodies, dropdowns, the admin sidebar) instead of Lenis always
+    // driving the page. body{overflow:hidden} alone can't stop Lenis — it scrolls
+    // the window itself from raw wheel deltas.
+    const lenis = new Lenis({ lerp: 0.12, smoothWheel: true, allowNestedScroll: true });
     let raf = 0;
     const loop = (time: number) => {
       lenis.raf(time);

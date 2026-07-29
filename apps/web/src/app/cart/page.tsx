@@ -52,34 +52,40 @@ export default function CartPage() {
   return (
     <div className="container-page pb-24 pt-28">
       <h1 className="font-display text-4xl font-medium text-forest-900 sm:text-5xl">Your basket</h1>
-      <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_400px]">
-        <div className="space-y-4">
+      {/* min-w-0 / minmax(0,1fr): a grid track defaults to a min-content floor, and
+          overflow-x-auto does NOT zero out a min-content contribution. Without these the
+          "You were looking at" strip (7 x w-36 = 1080px) sizes the whole column, and the
+          page lays out 1096px wide inside a 338px phone. */}
+      <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_400px]">
+        <div className="min-w-0 space-y-4">
           {items.map((i) => (
-            <div key={i.productId} className="card-organic flex gap-4 p-4 sm:gap-6 sm:p-5">
+            <div key={i.productId} className="card-organic flex gap-3 p-3 sm:gap-6 sm:p-5">
               {i.image && (
-                <Link href={`/product/${i.slug}`} className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl sm:h-28 sm:w-28">
-                  <Image src={i.image} alt={i.name} fill sizes="112px" className="object-cover" />
+                <Link href={`/product/${i.slug}`} className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl sm:h-28 sm:w-28">
+                  <Image src={i.image} alt={i.name} fill sizes="(max-width: 640px) 80px, 112px" className="object-cover" />
                 </Link>
               )}
-              <div className="flex flex-1 flex-col">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <Link href={`/product/${i.slug}`} className="font-display text-lg leading-snug text-forest-900 hover:text-forest-700">{i.name}</Link>
+              <div className="flex min-w-0 flex-1 flex-col gap-2">
+                {/* price sits under the name on phones and beside it from sm up — side by side
+                    it leaves the name barely 100px once the thumbnail and padding are taken */}
+                <div className="flex flex-col gap-0.5 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+                  <div className="min-w-0">
+                    <Link href={`/product/${i.slug}`} className="font-display text-base leading-snug text-forest-900 hover:text-forest-700 sm:text-lg">{i.name}</Link>
                     <p className="text-xs text-bark/60">{i.unit}</p>
                   </div>
-                  <p className="font-semibold text-forest-900">{inr(i.price * i.qty)}</p>
+                  <p className="shrink-0 font-semibold text-forest-900">{inr(i.price * i.qty)}</p>
                 </div>
-                <div className="mt-auto flex items-center justify-between pt-3">
+                <div className="mt-auto flex items-center justify-between gap-2">
                   <div className="flex items-center rounded-full border border-sand-dark">
-                    <button onClick={() => setQty(i.productId, i.qty - 1)} aria-label="Decrease" className="p-2 text-bark hover:text-forest-800"><Minus className="h-3.5 w-3.5" /></button>
-                    <span className="w-8 text-center text-sm font-semibold">{i.qty}</span>
-                    <button onClick={() => setQty(i.productId, i.qty + 1)} aria-label="Increase" className="p-2 text-bark hover:text-forest-800"><Plus className="h-3.5 w-3.5" /></button>
+                    <button onClick={() => setQty(i.productId, i.qty - 1)} aria-label="Decrease" className="p-1.5 text-bark hover:text-forest-800 sm:p-2"><Minus className="h-3.5 w-3.5" /></button>
+                    <span className="w-7 text-center text-sm font-semibold sm:w-8">{i.qty}</span>
+                    <button onClick={() => setQty(i.productId, i.qty + 1)} aria-label="Increase" className="p-1.5 text-bark hover:text-forest-800 sm:p-2"><Plus className="h-3.5 w-3.5" /></button>
                   </div>
-                  <div className="flex gap-1">
-                    <button onClick={() => saveForLater(i.productId)} className="rounded-full p-2 text-bark/50 transition hover:bg-cream hover:text-forest-800" aria-label="Save for later" title="Save for later">
+                  <div className="flex gap-0.5 sm:gap-1">
+                    <button onClick={() => saveForLater(i.productId)} className="rounded-full p-1.5 text-bark/50 transition hover:bg-cream hover:text-forest-800 sm:p-2" aria-label="Save for later" title="Save for later">
                       <BookmarkPlus className="h-4 w-4" />
                     </button>
-                    <button onClick={() => remove(i.productId)} className="rounded-full p-2 text-bark/50 transition hover:bg-cream hover:text-copper" aria-label="Remove" title="Remove">
+                    <button onClick={() => remove(i.productId)} className="rounded-full p-1.5 text-bark/50 transition hover:bg-cream hover:text-copper sm:p-2" aria-label="Remove" title="Remove">
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
@@ -93,14 +99,22 @@ export default function CartPage() {
               <h2 className="font-display text-2xl text-forest-900">Saved for later</h2>
               <div className="mt-4 space-y-3">
                 {savedForLater.map((i) => (
-                  <div key={i.productId} className="flex items-center gap-4 rounded-2xl border border-sand bg-cream-warm p-3">
-                    {i.image && <img src={i.image} alt="" className="h-14 w-14 rounded-xl object-cover" />}
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-ink">{i.name}</p>
+                  <div key={i.productId} className="flex items-center gap-3 rounded-2xl border border-sand bg-cream-warm p-3 sm:gap-4">
+                    {i.image && <img src={i.image} alt="" className="h-12 w-12 shrink-0 rounded-xl object-cover sm:h-14 sm:w-14" />}
+                    <div className="min-w-0 flex-1">
+                      {/* line-clamp-1, not truncate: truncate implies white-space:nowrap, which
+                          makes the entire name this flex item's min-content contribution (207px
+                          here) and pushes the whole grid column past the viewport. min-w-0 cannot
+                          undo that. This clips to one line the same way but keeps wrapping legal. */}
+                      <p className="line-clamp-1 text-sm font-medium text-ink">{i.name}</p>
                       <p className="text-xs text-bark/60">{inr(i.price)} · {i.unit}</p>
                     </div>
-                    <button onClick={() => moveToCart(i.productId)} className="btn-secondary px-4 py-1.5 text-xs"><Undo2 className="h-3 w-3" /> Move to basket</button>
-                    <button onClick={() => removeSaved(i.productId)} aria-label="Remove saved item" className="p-2 text-bark/40 hover:text-copper"><Trash2 className="h-4 w-4" /></button>
+                    {/* label drops below sm — spelled out it is ~190px, more than a phone
+                        has left after the thumbnail, name and delete button */}
+                    <button onClick={() => moveToCart(i.productId)} aria-label="Move to basket" title="Move to basket" className="btn-secondary shrink-0 px-3 py-1.5 text-xs sm:px-4">
+                      <Undo2 className="h-3 w-3" /> <span className="hidden sm:inline">Move to basket</span>
+                    </button>
+                    <button onClick={() => removeSaved(i.productId)} aria-label="Remove saved item" className="shrink-0 p-2 text-bark/40 hover:text-copper"><Trash2 className="h-4 w-4" /></button>
                   </div>
                 ))}
               </div>
@@ -123,11 +137,14 @@ export default function CartPage() {
           )}
         </div>
 
-        <aside className="h-fit space-y-5 lg:sticky lg:top-24">
-          <div className="card-organic p-6">
+        <aside className="h-fit min-w-0 space-y-5 lg:sticky lg:top-24">
+          <div className="card-organic p-4 sm:p-6">
             <h2 className="font-display text-2xl text-forest-900">Order summary</h2>
+            {/* min-w-0: a flex item defaults to min-width:auto, which for a wrapper
+                around an <input> is the input's intrinsic ~210px — wider than a 320px
+                phone leaves here, so the button gets shoved past the screen edge. */}
             <div className="mt-4 flex gap-2">
-              <div className="relative flex-1">
+              <div className="relative min-w-0 flex-1">
                 <Tag className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-bark/40" />
                 <input
                   value={couponInput}
@@ -148,7 +165,7 @@ export default function CartPage() {
               <p className="mt-2 text-xs font-medium text-forest-700">✓ {quote.coupon.code} applied{quote.coupon.description ? ` — ${quote.coupon.description}` : ""}</p>
             )}
             <div className="mt-4 flex gap-2">
-              <div className="relative flex-1">
+              <div className="relative min-w-0 flex-1">
                 <Truck className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-bark/40" />
                 <input
                   value={pinInput}

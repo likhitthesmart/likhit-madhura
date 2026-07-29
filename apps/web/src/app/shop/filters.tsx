@@ -120,19 +120,37 @@ export function Filters({ categories }: { categories: Category[] }) {
         <SlidersHorizontal className="h-4 w-4" /> Filters & sort
       </button>
       <aside className="hidden lg:block" aria-label="Product filters">
-        <div className="sticky top-24 card-organic p-6">{body}</div>
-      </aside>
-      {open && (
-        <div className="fixed inset-0 z-[60] bg-deep-950/40 lg:hidden" onClick={() => setOpen(false)}>
-          <div className="absolute inset-y-0 left-0 w-[min(320px,85vw)] overflow-y-auto bg-surface p-6" onClick={(e) => e.stopPropagation()}>
-            <div className="mb-6 flex items-center justify-between">
-              <p className="font-display text-xl text-forest-900">Filters</p>
-              <button onClick={() => setOpen(false)} aria-label="Close filters"><X className="h-5 w-5" /></button>
-            </div>
-            {body}
-          </div>
+        {/* Its own scroll container (plus overscroll-contain) so the wheel over the
+            filters moves the filters, not the product grid behind them. */}
+        <div className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto overscroll-contain card-organic p-6">
+          {body}
         </div>
-      )}
+      </aside>
+      {/* Always mounted so the drawer can transition both ways — unmounting on close
+          would snap it out of existence with no exit animation. `inert` keeps the
+          hidden copy out of tab order and the a11y tree. */}
+      <div
+        className={cn(
+          "fixed inset-0 z-[60] bg-deep-950/40 transition-opacity duration-300 lg:hidden",
+          open ? "opacity-100" : "pointer-events-none opacity-0"
+        )}
+        onClick={() => setOpen(false)}
+        inert={!open}
+      >
+        <div
+          className={cn(
+            "absolute inset-y-0 left-0 w-[min(320px,85vw)] overflow-y-auto overscroll-contain bg-surface p-6 shadow-lift transition-transform duration-300 ease-out",
+            open ? "translate-x-0" : "-translate-x-full"
+          )}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="mb-6 flex items-center justify-between">
+            <p className="font-display text-xl text-forest-900">Filters</p>
+            <button onClick={() => setOpen(false)} aria-label="Close filters"><X className="h-5 w-5" /></button>
+          </div>
+          {body}
+        </div>
+      </div>
     </>
   );
 }

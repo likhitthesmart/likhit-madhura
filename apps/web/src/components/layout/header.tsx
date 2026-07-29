@@ -217,10 +217,20 @@ export function Header() {
             </button>
           </div>
         </div>
-        {menuOpen && (
-          // max-h + scroll so the menu stays usable in landscape, where 4.5rem of
-          // header plus nine rows would otherwise run past the fold with no way down
-          <nav className="max-h-[calc(100vh-4.5rem)] overflow-y-auto border-t border-sand bg-surface px-6 py-2 lg:hidden" aria-label="Mobile">
+        {/* Stays mounted and slides open via grid-rows 0fr→1fr — the one way to
+            transition to "however tall the content is" without hardcoding a height.
+            Unmounting instead would give an instant pop with no exit animation. */}
+        <nav
+          className={cn(
+            "grid overflow-hidden bg-surface transition-[grid-template-rows,opacity] duration-300 ease-out lg:hidden",
+            menuOpen ? "grid-rows-[1fr] border-t border-sand opacity-100" : "grid-rows-[0fr] opacity-0"
+          )}
+          aria-label="Mobile"
+          inert={!menuOpen}
+        >
+          {/* min-h-0 lets the grid child collapse to 0; max-h + scroll keeps the menu
+              usable in landscape, where 4.5rem of header plus nine rows runs past the fold */}
+          <div className="min-h-0 max-h-[calc(100vh-4.5rem)] overflow-y-auto overscroll-contain px-6 py-2">
             {nav.map((n) => (
               <Link key={n.label} href={n.href} className="block border-b border-sand/60 py-3.5 text-sm font-medium text-bark">
                 {n.label}
@@ -233,8 +243,8 @@ export function Header() {
             <Link href={user ? "/account/wishlist" : "/login"} className="block py-3.5 text-sm font-medium text-bark sm:hidden">
               Wishlist
             </Link>
-          </nav>
-        )}
+          </div>
+        </nav>
       </header>
       {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
     </>

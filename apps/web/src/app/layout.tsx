@@ -5,6 +5,7 @@ import { Providers } from "@/components/layout/providers";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { Chatbot } from "@/components/layout/chatbot";
+import { PageTransition } from "@/components/layout/page-transition";
 import { LeadCapture } from "@/components/layout/lead-capture";
 import { themeInitScript } from "@/store/theme";
 
@@ -57,7 +58,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
         <Providers>
           <Header />
-          <main className="min-h-screen">{children}</main>
+          <PageTransition>{children}</PageTransition>
           <Footer />
           <Chatbot />
           <LeadCapture />
