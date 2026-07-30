@@ -3,7 +3,8 @@ import { z } from "zod";
 import rateLimit from "express-rate-limit";
 import { prisma } from "../prisma";
 import { wrap } from "../middleware/error";
-import { sendMail, mailTemplates } from "../lib/mailer";
+import { sendMail, notifyAdmin, mailTemplates } from "../lib/mailer";
+import { askMadhu, madhuEnabled } from "../lib/madhu";
 
 export const contactRouter = Router();
 // this router is mounted on the shared /api/v1 prefix, so the limiter must be
@@ -25,6 +26,7 @@ contactRouter.post(
       .parse(req.body);
     const enquiry = await prisma.enquiry.create({ data: body });
     void sendMail(body.email, "We received your message — Madhura Naturals", mailTemplates.enquiryReceived(body.name));
+    notifyAdmin(`New enquiry from ${body.name}${body.subject ? ` — ${body.subject}` : ""}`, mailTemplates.adminEnquiry(body));
     res.status(201).json({ ok: true, id: enquiry.id });
   })
 );
@@ -39,11 +41,32 @@ contactRouter.post(
   })
 );
 
-// themed chatbot: rule-based over live store data, escalates to support enquiry
+/* Madhu, the storefront assistant. Answers with Claude over live store data (see
+   lib/madhu.ts). The rule-based branches below remain as the fallback for when no
+   ANTHROPIC_API_KEY is configured or the model call fails — the widget keeps
+   answering the common questions instead of going dark. */
 contactRouter.post(
   "/chat",
   wrap(async (req, res) => {
-    const { message } = z.object({ message: z.string().min(1).max(500) }).parse(req.body);
+    const { message, history } = z
+      .object({
+        message: z.string().min(1).max(500),
+        // bounded: the client is untrusted and every turn is billed
+        history: z
+          .array(z.object({ role: z.enum(["user", "assistant"]), text: z.string().max(2000) }))
+          .max(20)
+          .optional(),
+      })
+      .parse(req.body);
+
+    if (madhuEnabled()) {
+      try {
+        return res.json(await askMadhu(message, history ?? [], { userId: req.auth?.userId }));
+      } catch (e) {
+        console.error("[chat] Madhu failed, falling back to rules:", e);
+      }
+    }
+
     const m = message.toLowerCase();
     const reply = async (): Promise<{ text: string; suggestions?: string[]; products?: unknown[] }> => {
       if (/track|order status|where.*order|delivery status/.test(m))

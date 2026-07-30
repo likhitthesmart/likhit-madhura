@@ -2,12 +2,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Check, ChevronLeft, CreditCard, Gift, Lock, MapPin, ShieldCheck, Timer } from "lucide-react";
+import { Check, ChevronLeft, CreditCard, Gift, Lock, MapPin, ShieldCheck, Timer, Trash2 } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { useAuth } from "@/store/auth";
 import { api, type CartQuote } from "@/lib/api";
 import { inr, cn } from "@/lib/format";
-import { trackEvent } from "@/components/layout/providers";
+import { IN_STATES, MOBILE_RE, toMobile } from "@/lib/india";
+import { trackEvent, scrollToTop } from "@/components/layout/providers";
 
 interface AddressForm {
   name: string; phone: string; line1: string; line2: string; city: string; state: string; pincode: string;
@@ -52,16 +53,39 @@ const loadRazorpay = (): Promise<void> =>
   });
 
 function AddressFields({ value, onChange, prefix }: { value: AddressForm; onChange: (a: AddressForm) => void; prefix: string }) {
-  const set = (k: keyof AddressForm) => (e: React.ChangeEvent<HTMLInputElement>) => onChange({ ...value, [k]: e.target.value });
+  const set = (k: keyof AddressForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => onChange({ ...value, [k]: e.target.value });
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       <div><label className="label-field" htmlFor={`${prefix}-name`}>Full name</label><input id={`${prefix}-name`} required value={value.name} onChange={set("name")} className="input-field" /></div>
-      <div><label className="label-field" htmlFor={`${prefix}-phone`}>Phone</label><input id={`${prefix}-phone`} required minLength={10} value={value.phone} onChange={set("phone")} className="input-field" inputMode="tel" /></div>
+      <div>
+        <label className="label-field" htmlFor={`${prefix}-phone`}>Phone</label>
+        {/* the courier calls this number — cleaned to 10 digits as it is typed so a
+            pasted "+91 98765 43210" lands as 9876543210 rather than failing later */}
+        <input
+          id={`${prefix}-phone`}
+          required
+          pattern="[6-9][0-9]{9}"
+          title="10-digit Indian mobile number"
+          value={value.phone}
+          onChange={(e) => onChange({ ...value, phone: toMobile(e.target.value) })}
+          className="input-field"
+          inputMode="numeric"
+          autoComplete="tel-national"
+        />
+      </div>
       <div className="sm:col-span-2"><label className="label-field" htmlFor={`${prefix}-line1`}>Address line 1</label><input id={`${prefix}-line1`} required value={value.line1} onChange={set("line1")} className="input-field" /></div>
       <div className="sm:col-span-2"><label className="label-field" htmlFor={`${prefix}-line2`}>Address line 2 (optional)</label><input id={`${prefix}-line2`} value={value.line2} onChange={set("line2")} className="input-field" /></div>
       <div><label className="label-field" htmlFor={`${prefix}-city`}>City</label><input id={`${prefix}-city`} required value={value.city} onChange={set("city")} className="input-field" /></div>
       <div className="grid grid-cols-2 gap-4">
-        <div><label className="label-field" htmlFor={`${prefix}-state`}>State</label><input id={`${prefix}-state`} required value={value.state} onChange={set("state")} className="input-field" /></div>
+        <div>
+          <label className="label-field" htmlFor={`${prefix}-state`}>State</label>
+          <select id={`${prefix}-state`} required value={value.state} onChange={set("state")} className="input-field">
+            <option value="" disabled>Select</option>
+            {IN_STATES.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        </div>
         <div><label className="label-field" htmlFor={`${prefix}-pin`}>Pincode</label><input id={`${prefix}-pin`} required pattern="\d{6}" value={value.pincode} onChange={(e) => onChange({ ...value, pincode: e.target.value.replace(/\D/g, "").slice(0, 6) })} className="input-field" inputMode="numeric" /></div>
       </div>
     </div>
@@ -92,7 +116,7 @@ function Countdown({ until, onExpire }: { until: string; onExpire: () => void })
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, couponCode, clear } = useCart();
+  const { items, couponCode, clear, remove } = useCart();
   const { user, accessToken } = useAuth();
   const [step, setStep] = useState(0);
   const [email, setEmail] = useState("");
@@ -108,6 +132,10 @@ export default function CheckoutPage() {
   const [payState, setPayState] = useState<"idle" | "paying" | "failed" | "expired">("idle");
 
   const [saved, setSaved] = useState<SavedAddress[]>([]);
+
+  // Address → Review → Payment never changes the URL, so nothing resets the scroll:
+  // the customer was partway down a tall form and lands mid-card on the short one.
+  useEffect(() => scrollToTop(), [step]);
 
   useEffect(() => {
     if (user?.email && !email) setEmail(user.email);
@@ -148,7 +176,7 @@ export default function CheckoutPage() {
   }, [items, couponCode, shipping.pincode, accessToken]);
 
   const canReview = useMemo(
-    () => email.includes("@") && shipping.name && shipping.phone.length >= 10 && shipping.line1 && shipping.city && shipping.state && /^\d{6}$/.test(shipping.pincode),
+    () => email.includes("@") && !!shipping.name && MOBILE_RE.test(shipping.phone) && !!shipping.line1 && !!shipping.city && IN_STATES.includes(shipping.state as (typeof IN_STATES)[number]) && /^\d{6}$/.test(shipping.pincode),
     [email, shipping]
   );
 
@@ -337,6 +365,15 @@ export default function CheckoutPage() {
                       <p className="text-xs text-bark/60">{i.unit} × {i.qty}</p>
                     </div>
                     <p className="text-sm font-semibold">{inr(i.price * i.qty)}</p>
+                    {/* last chance to drop a line before the order exists — the quote
+                        effect refetches off `items`, so the summary follows along */}
+                    <button
+                      onClick={() => remove(i.productId)}
+                      aria-label={`Remove ${i.name} from this order`}
+                      className="rounded-full p-2 text-bark/40 transition hover:bg-copper/10 hover:text-copper"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </li>
                 ))}
               </ul>

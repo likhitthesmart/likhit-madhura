@@ -10,6 +10,19 @@ import { sendMail, mailTemplates } from "../lib/mailer";
 export const adminRouter = Router();
 adminRouter.use(requireRole("ADMIN", "STAFF"));
 
+/* The admin date filters send plain YYYY-MM-DD. The shop and every timestamp the
+   admin sees are Indian time, so a "day" must be bounded at IST midnight — using
+   UTC would file an 03:00 IST order under the previous day. Both ends inclusive. */
+const IST = "+05:30";
+const dateQuery = { from: z.string().date().optional(), to: z.string().date().optional() };
+const dayRange = (from?: string, to?: string): Prisma.DateTimeFilter | undefined =>
+  from || to
+    ? {
+        ...(from ? { gte: new Date(`${from}T00:00:00.000${IST}`) } : {}),
+        ...(to ? { lte: new Date(`${to}T23:59:59.999${IST}`) } : {}),
+      }
+    : undefined;
+
 const audit = (userId: string, action: string, entity: string, entityId?: string, meta?: object) =>
   prisma.auditLog.create({ data: { userId, action, entity, entityId, meta } }).catch(() => undefined);
 
@@ -183,10 +196,21 @@ adminRouter.get("/inventory", wrap(async (_req, res) => {
   res.json({ products });
 }));
 adminRouter.get("/inventory/logs", wrap(async (req, res) => {
-  const q = z.object({ productId: z.string().optional(), page: z.coerce.number().default(1) }).parse(req.query);
-  const where = q.productId ? { productId: q.productId } : {};
-  const logs = await prisma.inventoryLog.findMany({ where, orderBy: { at: "desc" }, skip: (q.page - 1) * 30, take: 30, include: { product: { select: { name: true, sku: true } } } });
-  res.json({ logs });
+  const q = z.object({ productId: z.string().optional(), page: z.coerce.number().default(1), ...dateQuery }).parse(req.query);
+  const at = dayRange(q.from, q.to);
+  const where: Prisma.InventoryLogWhereInput = { ...(q.productId ? { productId: q.productId } : {}), ...(at ? { at } : {}) };
+  const [logs, total, sold, received] = await Promise.all([
+    prisma.inventoryLog.findMany({ where, orderBy: { at: "desc" }, skip: (q.page - 1) * 30, take: 30, include: { product: { select: { name: true, sku: true } } } }),
+    prisma.inventoryLog.count({ where }),
+    // units actually bought in this window — order checkout logs reason "sale"
+    prisma.inventoryLog.aggregate({ _sum: { delta: true }, where: { ...where, reason: "sale" } }),
+    prisma.inventoryLog.aggregate({ _sum: { delta: true }, where: { ...where, delta: { gt: 0 } } }),
+  ]);
+  res.json({
+    logs,
+    total,
+    summary: { sold: Math.abs(sold._sum.delta ?? 0), received: received._sum.delta ?? 0, movements: total },
+  });
 }));
 adminRouter.post("/inventory/:productId/adjust", wrap(async (req, res) => {
   const { delta, reason } = z.object({ delta: z.number().int(), reason: z.string().default("adjustment") }).parse(req.body);
@@ -198,20 +222,37 @@ adminRouter.post("/inventory/:productId/adjust", wrap(async (req, res) => {
 
 /* ---------------------------------- orders ---------------------------------- */
 
-adminRouter.get("/orders", wrap(async (req, res) => {
-  const q = z.object({ status: z.string().optional(), q: z.string().optional(), page: z.coerce.number().default(1) }).parse(req.query);
-  const where: Prisma.OrderWhereInput = {
+/* Shared by the list and the CSV export so "filter, then export" gives the same
+   rows on screen and in the file — an export that quietly ignored the filters
+   would hand the admin a spreadsheet that does not match what they were looking at. */
+const orderFilters = z.object({ status: z.string().optional(), q: z.string().optional(), ...dateQuery });
+const orderWhere = (q: z.infer<typeof orderFilters>): Prisma.OrderWhereInput => {
+  const createdAt = dayRange(q.from, q.to);
+  return {
     ...(q.status ? { status: q.status as never } : {}),
     ...(q.q ? { OR: [{ orderNo: { contains: q.q, mode: "insensitive" } }, { email: { contains: q.q, mode: "insensitive" } }] } : {}),
+    ...(createdAt ? { createdAt } : {}),
   };
-  const [orders, total] = await Promise.all([
+};
+
+adminRouter.get("/orders", wrap(async (req, res) => {
+  const q = orderFilters.extend({ page: z.coerce.number().default(1) }).parse(req.query);
+  const where = orderWhere(q);
+  const [orders, total, revenue] = await Promise.all([
     prisma.order.findMany({ where, orderBy: { createdAt: "desc" }, skip: (q.page - 1) * 20, take: 20, include: { items: true } }),
     prisma.order.count({ where }),
+    prisma.order.aggregate({ _sum: { total: true }, _count: true, where: { ...where, paymentStatus: "PAID" } }),
   ]);
-  res.json({ orders, total, pages: Math.ceil(total / 20) });
+  res.json({
+    orders,
+    total,
+    pages: Math.ceil(total / 20),
+    // counts the whole filtered range, not just the 20 rows on this page
+    summary: { orders: total, paidOrders: revenue._count, revenue: revenue._sum.total ?? 0 },
+  });
 }));
-adminRouter.get("/orders/export", wrap(async (_req, res) => {
-  const orders = await prisma.order.findMany({ orderBy: { createdAt: "desc" }, take: 1000, include: { items: true } });
+adminRouter.get("/orders/export", wrap(async (req, res) => {
+  const orders = await prisma.order.findMany({ where: orderWhere(orderFilters.parse(req.query)), orderBy: { createdAt: "desc" }, take: 1000, include: { items: true } });
   const header = "orderNo,date,email,status,paymentStatus,total,items";
   const lines = orders.map((o) =>
     [o.orderNo, o.createdAt.toISOString(), o.email, o.status, o.paymentStatus, (o.total / 100).toFixed(2), `"${o.items.map((i) => `${i.name} x${i.qty}`).join("; ")}"`].join(",")
@@ -257,8 +298,12 @@ adminRouter.patch("/orders/:id/status", wrap(async (req, res) => {
 /* ---------------------------------- users ---------------------------------- */
 
 adminRouter.get("/users", wrap(async (req, res) => {
-  const q = z.object({ q: z.string().optional(), page: z.coerce.number().default(1) }).parse(req.query);
-  const where: Prisma.UserWhereInput = q.q ? { OR: [{ name: { contains: q.q, mode: "insensitive" } }, { email: { contains: q.q, mode: "insensitive" } }] } : {};
+  const q = z.object({ q: z.string().optional(), page: z.coerce.number().default(1), ...dateQuery }).parse(req.query);
+  const createdAt = dayRange(q.from, q.to); // when they signed up
+  const where: Prisma.UserWhereInput = {
+    ...(q.q ? { OR: [{ name: { contains: q.q, mode: "insensitive" } }, { email: { contains: q.q, mode: "insensitive" } }] } : {}),
+    ...(createdAt ? { createdAt } : {}),
+  };
   const [users, total] = await Promise.all([
     prisma.user.findMany({
       where,
@@ -355,9 +400,10 @@ adminRouter.delete("/coupons/:id", wrap(async (req, res) => {
 /* ---------------------------------- reviews moderation ---------------------------------- */
 
 adminRouter.get("/reviews", wrap(async (req, res) => {
-  const q = z.object({ status: z.enum(["PENDING", "APPROVED", "REJECTED"]).default("PENDING") }).parse(req.query);
+  const q = z.object({ status: z.enum(["PENDING", "APPROVED", "REJECTED"]).default("PENDING"), ...dateQuery }).parse(req.query);
+  const createdAt = dayRange(q.from, q.to);
   const reviews = await prisma.review.findMany({
-    where: { status: q.status },
+    where: { status: q.status, ...(createdAt ? { createdAt } : {}) },
     orderBy: { createdAt: "desc" },
     take: 50,
     include: { user: { select: { name: true, email: true } }, product: { select: { name: true, slug: true } } },
@@ -470,26 +516,31 @@ adminRouter.get("/subscribers/export", wrap(async (_req, res) => {
 /* ---------------------------------- visitor analytics ---------------------------------- */
 
 adminRouter.get("/analytics", wrap(async (req, res) => {
-  const days = z.coerce.number().min(1).max(90).default(7).parse(req.query.days ?? 7);
-  const since = new Date(Date.now() - days * 86400_000);
+  const q = z.object({ days: z.coerce.number().min(1).max(90).default(7), ...dateQuery }).parse(req.query);
+  // an explicit range wins over the rolling-days preset
+  const range = dayRange(q.from, q.to) ?? { gte: new Date(Date.now() - q.days * 86400_000) };
+  // The raw referrer SQL needs two concrete bounds — an undefined one becomes NULL
+  // and BETWEEN NULL AND x silently matches no rows. Fall back to open-ended.
+  const since = (range.gte as Date | undefined) ?? new Date(0);
+  const until = (range.lte as Date | undefined) ?? new Date();
   const [pageviews, sessions, byDevice, byBrowser, byOs, topPages, referrers, funnel, byCountry, recent] = await Promise.all([
-    prisma.analyticsEvent.count({ where: { type: "pageview", createdAt: { gte: since } } }),
-    prisma.analyticsEvent.groupBy({ by: ["sessionId"], where: { createdAt: { gte: since } } }).then((r) => r.length),
-    prisma.analyticsEvent.groupBy({ by: ["device"], _count: true, where: { type: "pageview", createdAt: { gte: since } } }),
-    prisma.analyticsEvent.groupBy({ by: ["browser"], _count: true, where: { type: "pageview", createdAt: { gte: since } } }),
-    prisma.analyticsEvent.groupBy({ by: ["os"], _count: true, where: { type: "pageview", createdAt: { gte: since } } }),
-    prisma.analyticsEvent.groupBy({ by: ["path"], _count: true, where: { type: "pageview", createdAt: { gte: since } }, orderBy: { _count: { path: "desc" } }, take: 10 }),
+    prisma.analyticsEvent.count({ where: { type: "pageview", createdAt: range } }),
+    prisma.analyticsEvent.groupBy({ by: ["sessionId"], where: { createdAt: range } }).then((r) => r.length),
+    prisma.analyticsEvent.groupBy({ by: ["device"], _count: true, where: { type: "pageview", createdAt: range } }),
+    prisma.analyticsEvent.groupBy({ by: ["browser"], _count: true, where: { type: "pageview", createdAt: range } }),
+    prisma.analyticsEvent.groupBy({ by: ["os"], _count: true, where: { type: "pageview", createdAt: range } }),
+    prisma.analyticsEvent.groupBy({ by: ["path"], _count: true, where: { type: "pageview", createdAt: range }, orderBy: { _count: { path: "desc" } }, take: 10 }),
     prisma.$queryRaw<{ source: string; count: bigint }[]>(
       Prisma.sql`SELECT COALESCE(NULLIF(split_part(referrer, '/', 3), ''), 'direct') AS source, COUNT(*)::bigint AS count
-                 FROM "AnalyticsEvent" WHERE type = 'pageview' AND "createdAt" >= ${since} GROUP BY 1 ORDER BY 2 DESC LIMIT 10`
+                 FROM "AnalyticsEvent" WHERE type = 'pageview' AND "createdAt" BETWEEN ${since} AND ${until} GROUP BY 1 ORDER BY 2 DESC LIMIT 10`
     ),
     Promise.all(
       ["pageview", "add_to_cart", "begin_checkout", "purchase"].map(async (t) => ({
         step: t,
-        sessions: (await prisma.analyticsEvent.groupBy({ by: ["sessionId"], where: { type: t, createdAt: { gte: since } } })).length,
+        sessions: (await prisma.analyticsEvent.groupBy({ by: ["sessionId"], where: { type: t, createdAt: range } })).length,
       }))
     ),
-    prisma.analyticsEvent.groupBy({ by: ["country"], _count: true, where: { type: "pageview", createdAt: { gte: since }, country: { not: null } }, orderBy: { _count: { country: "desc" } }, take: 10 }),
+    prisma.analyticsEvent.groupBy({ by: ["country"], _count: true, where: { type: "pageview", createdAt: range, country: { not: null } }, orderBy: { _count: { country: "desc" } }, take: 10 }),
     prisma.analyticsEvent.findMany({ orderBy: { createdAt: "desc" }, take: 30, select: { type: true, path: true, device: true, browser: true, sessionId: true, ip: true, createdAt: true } }),
   ]);
   res.json({

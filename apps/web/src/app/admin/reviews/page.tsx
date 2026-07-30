@@ -13,6 +13,8 @@ import {
   Tabs,
   btnGhost,
   useAdminFetch,
+  DateRange,
+  rangeQuery,
 } from "@/components/admin/ui";
 
 interface AdminReview {
@@ -29,7 +31,11 @@ interface AdminReview {
 export default function ReviewsPage() {
   const token = useAuth((s) => s.accessToken);
   const [status, setStatus] = useState<"PENDING" | "APPROVED" | "REJECTED">("PENDING");
-  const { data, error, loading, reload } = useAdminFetch<{ reviews: AdminReview[] }>(`/admin/reviews?status=${status}`);
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const { data, error, loading, reload } = useAdminFetch<{ reviews: AdminReview[] }>(
+    `/admin/reviews?status=${status}${rangeQuery(from, to)}`
+  );
   const [msg, setMsg] = useState<string | null>(null);
 
   const moderate = async (id: string, next: "APPROVED" | "REJECTED") => {
@@ -53,6 +59,7 @@ export default function ReviewsPage() {
         active={status}
         onChange={(k) => setStatus(k as typeof status)}
       />
+      <DateRange from={from} to={to} onChange={(f, t) => { setFrom(f); setTo(t); }} />
       {msg && <Note>{msg}</Note>}
       {error && <Note>{error}</Note>}
 

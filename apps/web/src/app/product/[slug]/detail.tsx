@@ -1,7 +1,8 @@
 "use client";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
-import { Check, Heart, Leaf, Minus, Plus, Share2, ShieldCheck, ShoppingBag, Star, Truck } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Check, Heart, Leaf, Minus, Plus, Share2, ShieldCheck, ShoppingBag, Star, Truck, Zap } from "lucide-react";
 import type { Product, Review } from "@/lib/api";
 import { api } from "@/lib/api";
 import { inr, discountPct, dateLong, cn } from "@/lib/format";
@@ -18,17 +19,49 @@ function Gallery({ product }: { product: Product }) {
   );
   const [active, setActive] = useState(0);
   const [zoom, setZoom] = useState<{ x: number; y: number } | null>(null);
+  /* Touch has no hover, so the same image pinch-zooms instead: two fingers scale it
+     around their midpoint and it springs back on release.
+     touch-pan-y (rather than preventDefault) is what keeps the browser from zooming
+     the whole page — React registers touchmove as passive, so preventDefault there
+     is ignored. It still leaves one-finger vertical scrolling over the image alone. */
+  const [pinch, setPinch] = useState<{ scale: number; x: number; y: number } | null>(null);
+  const startDist = useRef(0);
   const current = media[active];
+
+  const spread = (t: React.TouchList) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
 
   return (
     <div>
       <div
-        className="relative aspect-square cursor-zoom-in overflow-hidden rounded-organic border border-sand bg-cream-warm shadow-card"
-        onMouseMove={(e) => {
+        className="relative aspect-square cursor-zoom-in touch-pan-y overflow-hidden rounded-organic border border-sand bg-cream-warm shadow-card"
+        /* pointerType, not onMouseMove: phones fire emulated mouse events after a tap,
+           which left a one-finger touch stuck at the hover zoom */
+        onPointerMove={(e) => {
+          if (e.pointerType !== "mouse") return;
           const r = e.currentTarget.getBoundingClientRect();
           setZoom({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 });
         }}
-        onMouseLeave={() => setZoom(null)}
+        onPointerLeave={() => setZoom(null)}
+        onTouchStart={(e) => {
+          if (e.touches.length !== 2) return;
+          const r = e.currentTarget.getBoundingClientRect();
+          startDist.current = spread(e.touches);
+          setPinch({
+            scale: 1,
+            x: (((e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left) / r.width) * 100,
+            y: (((e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top) / r.height) * 100,
+          });
+        }}
+        onTouchMove={(e) => {
+          if (e.touches.length !== 2 || !startDist.current) return;
+          const scale = Math.min(4, Math.max(1, spread(e.touches) / startDist.current));
+          setPinch((p) => (p ? { ...p, scale } : p));
+        }}
+        onTouchEnd={(e) => {
+          if (e.touches.length >= 2) return;
+          startDist.current = 0;
+          setPinch(null);
+        }}
       >
         {current?.type === "video" ? (
           <video src={current.src} controls className="h-full w-full object-cover" />
@@ -40,7 +73,13 @@ function Gallery({ product }: { product: Product }) {
             priority
             sizes="(max-width: 1024px) 100vw, 50vw"
             className="object-cover transition-transform duration-200"
-            style={zoom ? { transform: "scale(1.9)", transformOrigin: `${zoom.x}% ${zoom.y}%` } : undefined}
+            style={
+              pinch
+                ? { transform: `scale(${pinch.scale})`, transformOrigin: `${pinch.x}% ${pinch.y}%`, transitionDuration: "0ms" }
+                : zoom
+                  ? { transform: "scale(1.9)", transformOrigin: `${zoom.x}% ${zoom.y}%` }
+                  : undefined
+            }
           />
         ) : null}
       </div>
@@ -120,6 +159,7 @@ export function ProductDetail({ product }: { product: Product }) {
   const [wished, setWished] = useState(false);
   const [shared, setShared] = useState(false);
   const add = useCart((s) => s.add);
+  const router = useRouter();
   const { user, accessToken } = useAuth();
   const viewProduct = usePrefs((s) => s.viewProduct);
   const recentlyViewed = usePrefs((s) => s.recentlyViewed);
@@ -212,6 +252,19 @@ export function ProductDetail({ product }: { product: Product }) {
             </div>
             <button onClick={addToCart} disabled={product.stock === 0} className={cn("btn-primary flex-1 sm:flex-none sm:px-12", added && "bg-deep-600")}>
               {added ? (<><Check className="h-4 w-4" /> Added</>) : (<><ShoppingBag className="h-4 w-4" /> Add to cart</>)}
+            </button>
+            {/* ponytail: adds to the cart then jumps to checkout, so anything already
+                in the cart is checked out too — the single-item "buy only this" flow
+                needs a separate cart and is only worth it if customers complain. */}
+            <button
+              onClick={() => {
+                addToCart();
+                router.push("/checkout");
+              }}
+              disabled={product.stock === 0}
+              className="btn-secondary flex-1 sm:flex-none sm:px-10"
+            >
+              <Zap className="h-4 w-4" /> Buy now
             </button>
           </div>
 
@@ -349,7 +402,7 @@ export function ProductDetail({ product }: { product: Product }) {
       {others.length > 0 && (
         <section className="mt-20">
           <h2 className="font-display text-3xl text-forest-900">Recently viewed</h2>
-          <div className="mt-6 flex gap-4 overflow-x-auto pb-2">
+          <div className="mt-6 flex gap-4 overflow-x-auto overscroll-x-contain pb-2">
             {others.map((r) => (
               <Link key={r.slug} href={`/product/${r.slug}`} className="w-40 shrink-0 rounded-2xl border border-sand bg-surface p-3 transition hover:shadow-card">
                 {r.image && <img src={r.image} alt="" className="aspect-square w-full rounded-xl object-cover" />}

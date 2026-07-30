@@ -33,16 +33,27 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
       <h1 className="font-display text-4xl font-medium text-forest-900">Namaste, {user.name.split(" ")[0]}</h1>
       <div className="mt-8 grid gap-8 lg:grid-cols-[240px_1fr]">
         {/* min-w-0: a grid item defaults to min-width:auto and would stretch to fit
-            all seven links, pushing the page ~470px wide on a phone. Shrinking it
-            is what lets the nav's own overflow-x-auto actually scroll. */}
+            all seven links, pushing the page ~470px wide on a phone. */}
         <aside className="card-organic h-fit min-w-0 p-3 lg:sticky lg:top-24">
-          <nav className="flex gap-1 overflow-x-auto lg:flex-col" aria-label="Account">
+          {/* Phones get the native picker instead of the seven links — the OS renders
+              it as a real dropdown, so there is no horizontal strip to swipe. */}
+          <select
+            value={nav.find((n) => n.href === pathname)?.href ?? nav[0].href}
+            onChange={(e) => router.push(e.target.value)}
+            className="input-field mb-1 lg:hidden"
+            aria-label="Account section"
+          >
+            {nav.map((n) => (
+              <option key={n.href} value={n.href}>{n.label}</option>
+            ))}
+          </select>
+          <nav className="flex flex-col gap-1" aria-label="Account">
             {nav.map((n) => (
               <Link
                 key={n.href}
                 href={n.href}
                 className={cn(
-                  "flex shrink-0 items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition",
+                  "hidden shrink-0 items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition lg:flex",
                   pathname === n.href ? "bg-deep-800 text-ivory" : "text-bark hover:bg-cream"
                 )}
               >

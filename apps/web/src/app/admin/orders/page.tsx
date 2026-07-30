@@ -3,10 +3,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Download } from "lucide-react";
 import { inr } from "@/lib/format";
+import { api } from "@/lib/api";
 import { useAuth } from "@/store/auth";
 import {
   EmptyState,
-  Input,
+  SearchInput,
   Note,
   PageLoader,
   Pagination,
@@ -19,6 +20,8 @@ import {
   downloadCsv,
   rowCls,
   useAdminFetch,
+  DateRange,
+  rangeQuery,
 } from "@/components/admin/ui";
 
 const STATUSES = ["ALL", "PENDING", "PROCESSING", "PACKED", "SHIPPED", "DELIVERED", "CANCELLED", "REFUNDED"];
@@ -43,15 +46,22 @@ export default function OrdersPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [msg, setMsg] = useState<string | null>(null);
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
 
-  const { data, error, loading } = useAdminFetch<{ orders: AdminOrder[]; total: number; pages: number }>(
-    `/admin/orders?status=${status === "ALL" ? "" : status}&q=${encodeURIComponent(search)}&page=${page}`
-  );
+  const filters = `status=${status === "ALL" ? "" : status}&q=${encodeURIComponent(search)}${rangeQuery(from, to)}`;
+  const { data, error, loading } = useAdminFetch<{
+    orders: AdminOrder[];
+    total: number;
+    pages: number;
+    summary: { orders: number; paidOrders: number; revenue: number };
+  }>(`/admin/orders?${filters}&page=${page}`);
 
   const exportCsv = async () => {
     setMsg(null);
     try {
-      await downloadCsv("/admin/orders/export", "orders.csv", token);
+      // same filters as the table above, so the file matches what is on screen
+      await downloadCsv(`/admin/orders/export?${filters}`, "orders.csv", token);
     } catch (err) {
       setMsg(err instanceof Error ? err.message : "Export failed");
     }
@@ -73,6 +83,31 @@ export default function OrdersPage() {
         </button>
       </div>
 
+      <DateRange
+        from={from}
+        to={to}
+        onChange={(f, t) => {
+          setFrom(f);
+          setTo(t);
+          setPage(1);
+        }}
+      />
+
+      {data && (
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label: "Orders", value: String(data.summary.orders) },
+            { label: "Paid", value: String(data.summary.paidOrders) },
+            { label: "Revenue", value: inr(data.summary.revenue) },
+          ].map((s) => (
+            <div key={s.label} className="rounded-xl border border-white/10 bg-black/20 px-4 py-3">
+              <p className="text-[0.65rem] uppercase tracking-widest text-ivory/40">{s.label}</p>
+              <p className="mt-1 text-lg font-semibold text-ivory">{s.value}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -81,7 +116,21 @@ export default function OrdersPage() {
         }}
         className="flex gap-2"
       >
-        <Input placeholder="Search by order no, email, phone…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-sm" />
+        <SearchInput
+          placeholder="Search by order no, email, phone…"
+          value={q}
+          onChange={setQ}
+          onPick={(v) => {
+            setPage(1);
+            setSearch(v);
+          }}
+          suggest={async (term) => {
+            const r = await api<{ orders: AdminOrder[] }>(`/admin/orders?q=${encodeURIComponent(term)}&page=1`, { token });
+            // the order number is unique, so picking one narrows to that single order
+            return r.orders.map((o) => ({ label: `${o.orderNo} · ${o.email}`, value: o.orderNo }));
+          }}
+          className="max-w-sm"
+        />
         <button className={btnGhost}>Search</button>
       </form>
 

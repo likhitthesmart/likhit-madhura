@@ -21,7 +21,11 @@ export default function LoginPage() {
   // `window` there makes the first client render disagree and breaks hydration.
   useEffect(() => {
     const fromCallback = new URLSearchParams(window.location.search).get("error");
-    if (fromCallback) setError(fromCallback);
+    if (!fromCallback) return;
+    setError(fromCallback);
+    // drop it from the URL, or a reload or back-button shows the stale message again
+    // long after the cause is fixed
+    history.replaceState(null, "", window.location.pathname);
   }, []);
 
   const submit = async (e: React.FormEvent) => {

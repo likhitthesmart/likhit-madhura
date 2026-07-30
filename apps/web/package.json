@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "check:contrast": "node scripts/check-contrast.mjs",
     "check:logo": "node scripts/check-logo.mjs",
+    "check:phone": "node --experimental-strip-types --no-warnings scripts/check-phone.mjs",
     "lint": "next lint"
   },
   "dependencies": {

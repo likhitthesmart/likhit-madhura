@@ -13,12 +13,14 @@
     "check:payment": "tsx src/lib/payment.check.ts",
     "check:openapi": "tsx src/openapi.check.ts",
     "check:google": "tsx src/routes/auth.check.ts",
-    "check:mail": "tsx src/lib/mailer.check.ts"
+    "check:mail": "tsx src/lib/mailer.check.ts",
+    "check:madhu": "tsx src/lib/madhu.check.ts"
   },
   "prisma": {
     "seed": "tsx src/seed.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.115.0",
     "@prisma/client": "^6.3.0",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.5.1",

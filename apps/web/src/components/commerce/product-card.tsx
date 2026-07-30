@@ -46,7 +46,10 @@ export function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <article className="group card-organic relative overflow-hidden transition-all duration-500 hover:-translate-y-1.5 hover:shadow-lift">
+    /* h-full + flex column so every card in a row is the same height and the price
+       row can be pushed to the bottom — otherwise a two-line name shifts that card's
+       basket button down relative to its neighbour. */
+    <article className="group card-organic relative flex h-full flex-col overflow-hidden transition-all duration-500 hover:-translate-y-1.5 hover:shadow-lift">
       <Link href={`/product/${product.slug}`} className="block">
         <div className="relative aspect-square overflow-hidden bg-cream-warm">
           {product.images[0] && (
@@ -93,10 +96,12 @@ export function ProductCard({ product }: { product: Product }) {
       >
         <Heart className={cn("h-5 w-5", wished ? "fill-copper text-copper" : "text-bark")} />
       </button>
-      <div className="p-4">
-        <p className="text-[0.7rem] uppercase tracking-widest text-bark/50">{product.category?.name}</p>
+      <div className="flex flex-1 flex-col p-4">
+        {/* clamped so a long category or name cannot make one card's text block taller
+            than the rest of the row */}
+        <p className="line-clamp-1 text-[0.7rem] uppercase tracking-widest text-bark/50">{product.category?.name}</p>
         <Link href={`/product/${product.slug}`}>
-          <h3 className="mt-1 font-display text-lg leading-snug text-forest-900 transition group-hover:text-forest-700">
+          <h3 className="mt-1 line-clamp-2 font-display text-lg leading-snug text-forest-900 transition group-hover:text-forest-700">
             {product.name}
           </h3>
         </Link>
@@ -108,7 +113,7 @@ export function ProductCard({ product }: { product: Product }) {
             </span>
           )}
         </div>
-        <div className="mt-3 flex items-center justify-between">
+        <div className="mt-auto flex items-center justify-between pt-3">
           <p className="text-base font-semibold text-forest-900">
             {inr(product.price)}
             {off > 0 && <span className="ml-2 text-xs font-normal text-bark/40 line-through">{inr(product.mrp)}</span>}

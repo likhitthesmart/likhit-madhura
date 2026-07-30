@@ -4,6 +4,7 @@ import { Pencil, Plus, Star, Trash2 } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/store/auth";
 import { cn } from "@/lib/format";
+import { IN_STATES, toMobile } from "@/lib/india";
 
 interface Address { id: string; label: string; name: string; phone: string; line1: string; line2?: string | null; city: string; state: string; pincode: string; isDefault: boolean }
 type Draft = Omit<Address, "id"> & { id?: string };
@@ -37,8 +38,10 @@ export default function AddressesPage() {
     }
   };
 
-  const set = (k: keyof Draft) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setDraft((d) => (d ? { ...d, [k]: k === "isDefault" ? e.target.checked : e.target.value } : d));
+  const set = (k: keyof Draft) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    setDraft((d) =>
+      d ? { ...d, [k]: k === "isDefault" ? (e.target as HTMLInputElement).checked : k === "phone" ? toMobile(e.target.value) : e.target.value } : d
+    );
 
   return (
     <div className="space-y-5">
@@ -51,12 +54,20 @@ export default function AddressesPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div><label className="label-field">Label</label><input value={draft.label} onChange={set("label")} className="input-field" placeholder="Home / Office" /></div>
             <div><label className="label-field">Full name</label><input required value={draft.name} onChange={set("name")} className="input-field" /></div>
-            <div><label className="label-field">Phone</label><input required minLength={10} value={draft.phone} onChange={set("phone")} className="input-field" /></div>
+            <div><label className="label-field">Phone</label><input required pattern="[6-9][0-9]{9}" title="10-digit Indian mobile number" inputMode="numeric" autoComplete="tel-national" value={draft.phone} onChange={set("phone")} className="input-field" /></div>
             <div><label className="label-field">Pincode</label><input required pattern="\d{6}" value={draft.pincode} onChange={set("pincode")} className="input-field" /></div>
             <div className="sm:col-span-2"><label className="label-field">Line 1</label><input required value={draft.line1} onChange={set("line1")} className="input-field" /></div>
             <div className="sm:col-span-2"><label className="label-field">Line 2</label><input value={draft.line2 ?? ""} onChange={set("line2")} className="input-field" /></div>
             <div><label className="label-field">City</label><input required value={draft.city} onChange={set("city")} className="input-field" /></div>
-            <div><label className="label-field">State</label><input required value={draft.state} onChange={set("state")} className="input-field" /></div>
+            <div>
+              <label className="label-field">State</label>
+              <select required value={draft.state} onChange={set("state")} className="input-field">
+                <option value="" disabled>Select</option>
+                {IN_STATES.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
           </div>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={draft.isDefault} onChange={set("isDefault")} className="h-4 w-4 accent-forest-700" /> Set as default</label>
           {error && <p className="text-sm text-copper">{error}</p>}

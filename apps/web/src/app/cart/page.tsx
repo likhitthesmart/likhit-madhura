@@ -124,7 +124,7 @@ export default function CartPage() {
           {recentlyViewed.length > 0 && (
             <div className="pt-6">
               <h2 className="font-display text-2xl text-forest-900">You were looking at</h2>
-              <div className="mt-4 flex gap-3 overflow-x-auto pb-2">
+              <div className="mt-4 flex gap-3 overflow-x-auto overscroll-x-contain pb-2">
                 {recentlyViewed.map((r) => (
                   <Link key={r.slug} href={`/product/${r.slug}`} className="w-36 shrink-0 rounded-2xl border border-sand bg-surface p-3 transition hover:shadow-card">
                     {r.image && <img src={r.image} alt="" className="aspect-square w-full rounded-xl object-cover" />}

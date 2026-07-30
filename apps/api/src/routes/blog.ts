@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma";
 import { wrap, HttpError } from "../middleware/error";
+import { sendMail, notifyAdmin, mailTemplates } from "../lib/mailer";
 
 export const blogRouter = Router();
 
@@ -52,6 +53,8 @@ blogRouter.post(
     const post = await prisma.blogPost.findUnique({ where: { slug: req.params.slug } });
     if (!post) throw new HttpError(404, "Post not found");
     await prisma.blogComment.create({ data: { ...body, postId: post.id } });
+    void sendMail(body.email, "Thank you for your comment — Madhura Naturals", mailTemplates.commentReceived(body.name, post.title));
+    notifyAdmin(`New blog comment on “${post.title}”`, mailTemplates.adminModeration("blog comment", `${body.name} <${body.email}>`, post.title, body.body));
     res.status(201).json({ ok: true, message: "Comment submitted for moderation" });
   })
 );

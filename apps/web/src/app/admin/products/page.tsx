@@ -10,6 +10,7 @@ import {
   EmptyState,
   Field,
   Input,
+  SearchInput,
   Modal,
   Note,
   PageLoader,
@@ -174,7 +175,20 @@ export default function ProductsPage() {
           }}
           className="flex flex-1 gap-2"
         >
-          <Input placeholder="Search products by name, SKU…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-sm" />
+          <SearchInput
+            placeholder="Search products by name, SKU…"
+            value={q}
+            onChange={setQ}
+            onPick={(v) => {
+              setPage(1);
+              setSearch(v);
+            }}
+            suggest={async (term) => {
+              const r = await api<{ items: AdminProduct[] }>(`/admin/products?q=${encodeURIComponent(term)}&page=1`, { token });
+              return r.items.map((p) => ({ label: `${p.name} · ${p.sku}`, value: p.name }));
+            }}
+            className="max-w-sm"
+          />
           <button className={btnGhost}>Search</button>
         </form>
         <button className={btnPrimary} onClick={() => openEditor("new")}>

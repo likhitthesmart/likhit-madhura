@@ -5,8 +5,8 @@ import { wrap, HttpError } from "../middleware/error";
 import { requireAuth } from "../middleware/auth";
 import { quoteCart } from "../lib/pricing";
 import { paymentProvider, verifyWebhook, PAYMENT_WINDOW_MINUTES } from "../lib/payment";
-import { orderNo, pushTimeline } from "../lib/util";
-import { sendMail, mailTemplates } from "../lib/mailer";
+import { orderNo, pushTimeline, rupees } from "../lib/util";
+import { sendMail, notifyAdmin, mailTemplates } from "../lib/mailer";
 
 export const cartRouter = Router();
 
@@ -27,9 +27,17 @@ cartRouter.post(
 
 export const ordersRouter = Router();
 
+/* The courier calls this number, so "abcdefghij" must not reach the packing slip.
+   Spaces and dashes are stripped first and a +91 is tolerated, because saved
+   addresses predate this check and are re-submitted verbatim on reorder. */
+const indianMobile = z
+  .string()
+  .transform((s) => s.replace(/[\s-]/g, ""))
+  .pipe(z.string().regex(/^(?:\+?91)?[6-9]\d{9}$/, "Enter a valid 10-digit Indian mobile number"));
+
 const addressJson = z.object({
   name: z.string().min(2),
-  phone: z.string().min(10),
+  phone: indianMobile,
   line1: z.string().min(3),
   line2: z.string().optional(),
   city: z.string().min(2),
@@ -44,7 +52,7 @@ ordersRouter.post(
     const body = cartBody
       .extend({
         email: z.string().email(),
-        phone: z.string().min(10).max(15),
+        phone: indianMobile,
         shippingAddress: addressJson,
         billingAddress: addressJson.optional(),
         giftNote: z.string().max(300).optional(),
@@ -157,6 +165,9 @@ const markPaid = async (order: Awaited<ReturnType<typeof findOrder>>) => {
   for (const item of order.items)
     await prisma.product.update({ where: { id: item.productId }, data: { soldCount: { increment: item.qty } } });
   void sendMail(order.email, `Order ${order.orderNo} confirmed — Madhura Naturals`, mailTemplates.orderConfirmed(order));
+  // Shop's own copy. Fired here rather than at order creation so the inbox only
+  // sees orders that were actually paid for, and only once (markPaid is idempotent).
+  notifyAdmin(`New order ${order.orderNo} — ${rupees(order.total)}`, mailTemplates.adminOrder(order));
   return true;
 };
 

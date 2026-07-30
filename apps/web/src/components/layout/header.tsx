@@ -89,7 +89,7 @@ function SearchOverlay({ onClose }: { onClose: () => void }) {
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="max-h-[60vh] overflow-y-auto p-5">
+        <div className="max-h-[60vh] overflow-y-auto overscroll-contain p-5">
           {items.length > 0 && (
             <ul className="space-y-1">
               {items.map((p) => (
@@ -188,13 +188,13 @@ export function Header() {
               </Link>
             ))}
           </nav>
-          {/* p-2 on phones keeps every target ≥36px while fitting five icons at 360px;
-              wishlist and account move into the mobile menu rather than shrinking further */}
+          {/* phones keep only search + menu — theme moves to a bottom-left FAB, and
+              wishlist/account/cart move into the mobile menu */}
           <div className={cn("flex shrink-0 items-center gap-0.5 sm:gap-1", solid ? "text-forest-800" : "text-ivory")}>
             <button onClick={() => setSearchOpen(true)} aria-label="Search" className="rounded-full p-2 transition hover:bg-deep-900/10 sm:p-2.5">
               <Search className="h-5 w-5" />
             </button>
-            <button onClick={toggleTheme} aria-label="Toggle dark theme" className="rounded-full p-2 transition hover:bg-deep-900/10 sm:p-2.5">
+            <button onClick={toggleTheme} aria-label="Toggle dark theme" className="hidden rounded-full p-2.5 transition hover:bg-deep-900/10 sm:block">
               <Moon className="h-5 w-5 dark:hidden" />
               <Sun className="hidden h-5 w-5 dark:block" />
             </button>
@@ -204,7 +204,7 @@ export function Header() {
             <Link href={user ? "/account" : "/login"} aria-label={user ? "My account" : "Sign in"} className="hidden rounded-full p-2.5 transition hover:bg-deep-900/10 sm:block">
               <User className="h-5 w-5" />
             </Link>
-            <Link href="/cart" aria-label={`Cart, ${count} items`} className="relative rounded-full p-2 transition hover:bg-deep-900/10 sm:p-2.5">
+            <Link href="/cart" aria-label={`Cart, ${count} items`} className="relative hidden rounded-full p-2.5 transition hover:bg-deep-900/10 sm:block">
               <ShoppingBag className="h-5 w-5" />
               {count > 0 && (
                 <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-copper px-1 text-[0.65rem] font-bold text-ivory">
@@ -236,7 +236,11 @@ export function Header() {
                 {n.label}
               </Link>
             ))}
-            {/* shown here because the header drops these two icons below sm */}
+            {/* shown here because the header drops these icons below sm */}
+            <Link href="/cart" className="flex items-center gap-2 border-b border-sand/60 py-3.5 text-sm font-medium text-bark sm:hidden">
+              Cart
+              {count > 0 && <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-copper px-1 text-[0.65rem] font-bold text-ivory">{count}</span>}
+            </Link>
             <Link href={user ? "/account" : "/login"} className="block border-b border-sand/60 py-3.5 text-sm font-medium text-bark sm:hidden">
               {user ? "My account" : "Sign in"}
             </Link>
@@ -246,6 +250,25 @@ export function Header() {
           </div>
         </nav>
       </header>
+      {/* Tap-anywhere-else close. Starts below the 4.5rem bar so the X stays clickable,
+          and sits under the header's z-50 so the open panel draws over it. */}
+      <div
+        className={cn(
+          "fixed bottom-0 left-0 right-0 top-[4.5rem] z-40 bg-deep-950/40 transition-opacity duration-300 lg:hidden",
+          menuOpen ? "opacity-100" : "pointer-events-none opacity-0"
+        )}
+        onClick={() => setMenuOpen(false)}
+        aria-hidden
+      />
+      {/* mirrors the Madhu FAB on the right — same bottom-5 offset and 14×14 circle */}
+      <button
+        onClick={toggleTheme}
+        aria-label="Toggle dark theme"
+        className="fixed bottom-5 left-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-deep-800 text-ivory shadow-lift transition-all duration-300 hover:scale-105 hover:bg-deep-700 sm:hidden"
+      >
+        <Moon className="h-6 w-6 dark:hidden" />
+        <Sun className="hidden h-6 w-6 dark:block" />
+      </button>
       {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
     </>
   );

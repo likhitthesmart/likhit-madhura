@@ -1,6 +1,6 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { SlidersHorizontal, X } from "lucide-react";
 import type { Category } from "@/lib/api";
 import { cn } from "@/lib/format";
@@ -20,6 +20,13 @@ const toggles = [
   { key: "discounted", label: "On offer" },
 ];
 
+/* The filter rail is only 260px wide, so these two share it with a separator and a
+   button. min-w-0 lets them shrink (input-field is w-full), tighter padding buys back
+   room, and the number spinners are dropped — they steal ~20px each and nobody steps
+   a price in ones. */
+const priceInput =
+  "input-field min-w-0 flex-1 px-2.5 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none";
+
 export function Filters({ categories }: { categories: Category[] }) {
   const router = useRouter();
   const sp = useSearchParams();
@@ -35,6 +42,30 @@ export function Filters({ categories }: { categories: Category[] }) {
     },
     [router, sp]
   );
+
+  /* Price is committed explicitly rather than on every keystroke, so the boxes need
+     their own state — but it must follow the URL, or "Clear all filters" leaves the
+     old numbers sitting in the inputs while the results reset. */
+  const urlMin = sp.get("minPrice") ?? "";
+  const urlMax = sp.get("maxPrice") ?? "";
+  const [minPrice, setMinPrice] = useState(urlMin);
+  const [maxPrice, setMaxPrice] = useState(urlMax);
+  useEffect(() => {
+    setMinPrice(urlMin);
+    setMaxPrice(urlMax);
+  }, [urlMin, urlMax]);
+
+  // both bounds in one navigation — setting them separately fired two round trips
+  const applyPrice = useCallback(() => {
+    if (minPrice === urlMin && maxPrice === urlMax) return;
+    const next = new URLSearchParams(sp.toString());
+    for (const [key, value] of [["minPrice", minPrice], ["maxPrice", maxPrice]] as const) {
+      if (value) next.set(key, value);
+      else next.delete(key);
+    }
+    next.delete("page");
+    router.push(`/shop?${next.toString()}`, { scroll: false });
+  }, [minPrice, maxPrice, urlMin, urlMax, router, sp]);
 
   const category = sp.get("category");
   const sort = sp.get("sort") ?? "popular";
@@ -73,11 +104,40 @@ export function Filters({ categories }: { categories: Category[] }) {
       </div>
       <div>
         <p className="label-field">Price (₹)</p>
-        <div className="flex items-center gap-2">
-          <input type="number" min={0} placeholder="Min" defaultValue={sp.get("minPrice") ?? ""} onBlur={(e) => setParam("minPrice", e.target.value || null)} className="input-field" aria-label="Minimum price" />
+        {/* a real form so Enter applies the range — blur alone missed the most
+            common interaction, typing a number and hitting return */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            applyPrice();
+          }}
+          className="flex items-center gap-2"
+        >
+          <input
+            type="number"
+            min={0}
+            placeholder="Min"
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value)}
+            onBlur={applyPrice}
+            className={priceInput}
+            aria-label="Minimum price"
+          />
           <span className="text-bark/40">–</span>
-          <input type="number" min={0} placeholder="Max" defaultValue={sp.get("maxPrice") ?? ""} onBlur={(e) => setParam("maxPrice", e.target.value || null)} className="input-field" aria-label="Maximum price" />
-        </div>
+          <input
+            type="number"
+            min={0}
+            placeholder="Max"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+            onBlur={applyPrice}
+            className={priceInput}
+            aria-label="Maximum price"
+          />
+          <button type="submit" className="shrink-0 rounded-lg border border-sand-dark px-2.5 py-2 text-xs text-bark transition hover:border-forest-400 hover:text-forest-800">
+            Go
+          </button>
+        </form>
       </div>
       <div>
         <p className="label-field">Rating</p>
@@ -106,8 +166,9 @@ export function Filters({ categories }: { categories: Category[] }) {
           </label>
         ))}
       </div>
+      {/* setOpen(false) also closes the mobile drawer; a no-op for the desktop rail */}
       {hasFilters && (
-        <button onClick={() => router.push("/shop")} className="btn-secondary w-full py-2 text-xs">
+        <button onClick={() => { setOpen(false); router.push("/shop"); }} className="btn-secondary w-full py-2 text-xs">
           <X className="h-3.5 w-3.5" /> Clear all filters
         </button>
       )}

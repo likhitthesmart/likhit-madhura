@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Leaf, Send, X } from "lucide-react";
 import { api } from "@/lib/api";
+import { useAuth } from "@/store/auth";
 import { inr, cn } from "@/lib/format";
 import { LotusMark } from "../ui/logo";
 
@@ -25,6 +26,9 @@ export function Chatbot() {
   const [msgs, setMsgs] = useState<Msg[]>([opener]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  // sent so Madhu can look up the signed-in customer's own orders without
+  // asking them for an order number and email
+  const accessToken = useAuth((s) => s.accessToken);
   const bodyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -35,12 +39,15 @@ export function Chatbot() {
     const q = text.trim();
     if (!q || busy) return;
     setInput("");
+    // captured before the optimistic append so the new question isn't duplicated
+    const history = msgs.slice(-10).map((m) => ({ role: m.from === "user" ? "user" : "assistant", text: m.text }));
     setMsgs((m) => [...m, { from: "user", text: q }]);
     setBusy(true);
     try {
       const r = await api<{ text: string; suggestions?: string[]; products?: ChatProduct[] }>("/chat", {
         method: "POST",
-        body: JSON.stringify({ message: q }),
+        token: accessToken,
+        body: JSON.stringify({ message: q, history }),
       });
       setMsgs((m) => [...m, { from: "bot", ...r }]);
     } catch {
@@ -74,7 +81,7 @@ export function Chatbot() {
             <p className="mt-1 text-[0.7rem] text-ivory/60">Your organic living assistant</p>
           </div>
         </div>
-        <div ref={bodyRef} className="flex max-h-[50vh] min-h-64 flex-col gap-3 overflow-y-auto bg-cream-warm p-4">
+        <div ref={bodyRef} className="flex max-h-[50vh] min-h-64 flex-col gap-3 overflow-y-auto overscroll-contain bg-cream-warm p-4">
           {msgs.map((m, i) => (
             <div key={i} className={cn("max-w-[85%]", m.from === "user" ? "self-end" : "self-start")}>
               <div

@@ -36,10 +36,36 @@ accountRouter.post(
   })
 );
 
+/* The client owns the list shape (newest first, deduped, capped) — the server just
+   stores it, so there is no second copy of that logic here. */
+accountRouter.get(
+  "/searches",
+  wrap(async (req, res) => {
+    const user = await prisma.user.findUnique({
+      where: { id: req.auth!.userId },
+      select: { recentSearches: true },
+    });
+    res.json({ recentSearches: user?.recentSearches ?? [] });
+  })
+);
+
+accountRouter.put(
+  "/searches",
+  wrap(async (req, res) => {
+    const body = z.object({ recentSearches: z.array(z.string().min(1).max(80)).max(6) }).parse(req.body);
+    await prisma.user.update({ where: { id: req.auth!.userId }, data: body });
+    res.json({ ok: true });
+  })
+);
+
 const addressSchema = z.object({
   label: z.string().max(30).default("Home"),
   name: z.string().min(2).max(80),
-  phone: z.string().min(10).max(15),
+  // same rule the order route enforces — a saved address is the source for checkout
+  phone: z
+    .string()
+    .transform((s) => s.replace(/[\s-]/g, ""))
+    .pipe(z.string().regex(/^(?:\+?91)?[6-9]\d{9}$/, "Enter a valid 10-digit Indian mobile number")),
   line1: z.string().min(3).max(120),
   line2: z.string().max(120).optional(),
   city: z.string().min(2).max(60),

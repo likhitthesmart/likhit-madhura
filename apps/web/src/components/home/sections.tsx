@@ -145,8 +145,9 @@ export function FeaturedProducts({ products }: { products: Product[] }) {
       <div className="container-page">
         <SectionHeading eyebrow="Handpicked" title="The harvest table" sub="Bestsellers and small-batch favourites, straight from this week's pressing." />
         <Stagger className="mt-14 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+          {/* h-full: the card's own h-full resolves against this wrapper, not the row */}
           {products.slice(0, 8).map((p) => (
-            <StaggerItem key={p.id}>
+            <StaggerItem key={p.id} className="h-full">
               <ProductCard product={p} />
             </StaggerItem>
           ))}

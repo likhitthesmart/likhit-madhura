@@ -122,12 +122,30 @@ const upsertGoogleUser = async (profile: Awaited<ReturnType<typeof verifyGoogle>
       });
 };
 
+/* Which host the browser actually typed. Next's rewrite proxy forwards it here as
+   x-forwarded-host; absent (direct hit on :4000) we simply skip the check below. */
+const browserHost = (req: { headers: Record<string, unknown> }) => {
+  const fwd = req.headers["x-forwarded-host"];
+  return (Array.isArray(fwd) ? fwd[0] : typeof fwd === "string" ? fwd : "").split(",")[0].trim();
+};
+
 // step 1 — send the browser to Google's consent screen
 authRouter.get(
   "/google/start",
-  wrap(async (_req, res) => {
+  wrap(async (req, res) => {
     if (!env.google.clientId || !env.google.clientSecret)
       throw new HttpError(503, "Google sign-in is not configured");
+    /* Dev only: opening the site on a phone over the LAN means Google would send the
+       browser back to SITE_URL — localhost, i.e. the phone itself — and the flow dead-ends
+       on an unreachable page. Google will not accept a private LAN IP as a redirect URI,
+       so the fix is a tunnel, not another env var. Say that instead of dead-ending. */
+    const seen = browserHost(req);
+    if (!env.isProd && seen && seen !== new URL(env.siteUrl).host)
+      return res.redirect(
+        `/login?error=${encodeURIComponent(
+          `Google sign-in only works on ${env.siteUrl} (SITE_URL), not http://${seen}. Use a tunnel URL for both SITE_URL and the Google console, or sign in with email here.`
+        )}`
+      );
     // state ties the callback to this browser — without it, an attacker can feed
     // a victim their own code and land the victim in the attacker's account
     const state = crypto.randomBytes(16).toString("hex");

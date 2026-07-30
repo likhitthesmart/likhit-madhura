@@ -31,6 +31,16 @@ export async function sendMail(to: string, subject: string, html: string) {
   }
 }
 
+/** Fire-and-forget copy to the shop's own inbox. Separate from sendMail so a
+ *  missing ADMIN_EMAIL is loud in the log but never blocks a customer flow. */
+export function notifyAdmin(subject: string, html: string) {
+  if (!env.adminEmail) {
+    console.log(`[mail:no-admin] subject="${subject}" — set ADMIN_EMAIL to receive these`);
+    return;
+  }
+  void sendMail(env.adminEmail, subject, html);
+}
+
 /** Live SMTP handshake. Used by `npm run check:mail` — never on a request path. */
 export async function verifyTransport() {
   if (!transporter) return "not configured — SMTP_HOST is empty, so mail is logged instead of sent";
@@ -111,6 +121,29 @@ export const mailTemplates = {
       `<p>Thank you for subscribing. You will hear from us when a fresh batch is pressed, and when members-only offers open.</p>
        <p><a href="${env.siteUrl}/shop">Browse the shop</a></p>`
     ),
+  /* Both of these go out on submission, not approval — the customer is told on screen
+     that a human has to review it, so the mail says the same thing. */
+  reviewReceived: (productName: string) =>
+    shell(
+      "Thank you for your review",
+      `<p>We received your review of <b>${esc(productName)}</b>. Our team reads every one; it appears on the
+         product page once approved.</p>
+       <p><a href="${env.siteUrl}/reviews">See what others are saying</a></p>`
+    ),
+  commentReceived: (name: string, postTitle: string) =>
+    shell(
+      "Thank you for your comment",
+      `<p>Namaste ${esc(name)}, we received your comment on <b>${esc(postTitle)}</b>. It appears under the
+         post once it clears moderation.</p>
+       <p><a href="${env.siteUrl}/blog">Read more from the journal</a></p>`
+    ),
+  adminModeration: (kind: string, who: string, on: string, body: string) =>
+    shell(
+      `New ${esc(kind)} awaiting approval`,
+      `<p style="margin-top:0"><b style="color:#2f3a22">From</b><br>${esc(who)}</p>
+       <p><b style="color:#2f3a22">On</b><br>${esc(on)}</p>
+       <p><b style="color:#2f3a22">Content</b><br>${esc(body).replace(/\n/g, "<br>")}</p>`
+    ),
   /** Sent the moment an order is created, before payment clears. */
   orderPlaced: (o: OrderMail & { paymentExpiresAt?: Date | null }) => {
     const minutes = o.paymentExpiresAt
@@ -155,5 +188,40 @@ export const mailTemplates = {
     };
   },
   enquiryReceived: (name: string) =>
-    shell("We received your message", `<p>Namaste ${name}, thank you for reaching out. Our team will reply within 24 hours.</p>`),
+    shell("We received your message", `<p>Namaste ${esc(name)}, thank you for reaching out. Our team will reply within 24 hours.</p>`),
+
+  /* ---- shop-facing copies (ADMIN_EMAIL), not sent to customers ---- */
+
+  /** New paid order: who bought, how to reach them, and what to pack. */
+  adminOrder: (o: OrderMail & { email: string; phone: string; userId?: string | null; couponCode?: string | null; paymentRef?: string | null }) => {
+    const a = (o.shippingAddress ?? {}) as Record<string, string>;
+    return shell(
+      `New order ${esc(o.orderNo)}`,
+      `<p>A new order has been paid for and is ready to pack.</p>
+       <p style="margin-top:20px"><b style="color:#2f3a22">Customer</b><br>
+         ${esc(a.name || "—")}<br>
+         <a href="mailto:${esc(o.email)}">${esc(o.email)}</a><br>
+         <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a><br>
+         <span style="color:#8a8a7a">${o.userId ? "Registered account" : "Guest checkout"}</span></p>
+       ${orderDetails(o, "Total paid")}
+       ${o.couponCode ? `<p style="color:#6b6b5e">Coupon used: <b style="color:#2f3a22">${esc(o.couponCode)}</b></p>` : ""}
+       ${o.paymentRef ? `<p style="color:#6b6b5e">Payment ref: ${esc(o.paymentRef)}</p>` : ""}
+       <p style="margin-top:20px"><a href="${env.siteUrl}/admin/orders">Open in admin</a></p>`
+    );
+  },
+
+  /** New contact-form / chat enquiry, with the customer's own words verbatim. */
+  adminEnquiry: (e: { name: string; email: string; phone?: string; subject?: string; message: string; source: string }) =>
+    shell(
+      `New enquiry from ${esc(e.name)}`,
+      `<p style="margin-top:0"><b style="color:#2f3a22">Customer</b><br>
+         ${esc(e.name)}<br>
+         <a href="mailto:${esc(e.email)}">${esc(e.email)}</a>
+         ${e.phone ? `<br><a href="tel:${esc(e.phone)}">${esc(e.phone)}</a>` : ""}<br>
+         <span style="color:#8a8a7a">via ${esc(e.source)}</span></p>
+       <p><b style="color:#2f3a22">Subject</b><br>${esc(e.subject || "—")}</p>
+       <p><b style="color:#2f3a22">Message</b><br>${esc(e.message).replace(/\n/g, "<br>")}</p>
+       <p style="margin-top:20px"><a href="${env.siteUrl}/admin/enquiries">Open in admin</a> ·
+         <a href="mailto:${esc(e.email)}?subject=Re: ${encodeURIComponent(e.subject || "your enquiry")}">Reply directly</a></p>`
+    ),
 };

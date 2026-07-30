@@ -73,6 +73,8 @@ model User {
   providerId      String?
   lastLoginAt     DateTime?
   createdAt       DateTime  @default(now())
+  // per-account search history, so it does not leak between users on a shared device
+  recentSearches  String[]  @default([])
 
   refreshTokens RefreshToken[]
   addresses     Address[]

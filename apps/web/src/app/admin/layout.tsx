@@ -120,7 +120,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <X className="h-5 w-5" />
           </button>
         </div>
-        <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 pb-4">
+        <nav className="flex-1 space-y-0.5 overflow-y-auto overscroll-contain px-3 pb-4">
           {nav.map((item) => {
             const Icon = item.icon;
             const isActive = item === active;

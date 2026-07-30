@@ -16,6 +16,11 @@ export const env = {
   jwtRefreshSecret: req("JWT_REFRESH_SECRET", "dev_refresh_secret_change_me"),
   siteUrl,
   paymentProvider: process.env.PAYMENT_PROVIDER ?? "mock",
+  // Unset -> the chatbot falls back to its rule-based replies instead of erroring
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? "",
+  // Where the shop's own copy of orders and enquiries lands. Comma-separated for
+  // several recipients. Unset -> those notifications are logged, not sent.
+  adminEmail: (process.env.ADMIN_EMAIL ?? "").trim(),
   razorpay: {
     // test keys start rzp_test_, live keys rzp_live_ — same API, no mode flag
     keyId: process.env.RAZORPAY_KEY_ID ?? "",

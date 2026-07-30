@@ -12,6 +12,8 @@ import {
   Td,
   rowCls,
   useAdminFetch,
+  DateRange,
+  rangeQuery,
 } from "@/components/admin/ui";
 
 interface Analytics {
@@ -29,7 +31,10 @@ interface Analytics {
 
 export default function AnalyticsPage() {
   const [days, setDays] = useState("7");
-  const { data, error, loading } = useAdminFetch<Analytics>(`/admin/analytics?days=${days}`);
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  // an explicit range wins over the rolling-days tabs, server-side too
+  const { data, error, loading } = useAdminFetch<Analytics>(`/admin/analytics?days=${days}${rangeQuery(from, to)}`);
 
   return (
     <div className="space-y-6">
@@ -39,9 +44,14 @@ export default function AnalyticsPage() {
           { key: "30", label: "Last 30 days" },
           { key: "90", label: "Last 90 days" },
         ]}
-        active={days}
-        onChange={setDays}
+        active={from || to ? "" : days}
+        onChange={(k) => {
+          setDays(k);
+          setFrom("");
+          setTo(""); // picking a rolling window clears the explicit range
+        }}
       />
+      <DateRange from={from} to={to} onChange={(f, t) => { setFrom(f); setTo(t); }} />
       {error && <Note>{error}</Note>}
 
       {loading ? (

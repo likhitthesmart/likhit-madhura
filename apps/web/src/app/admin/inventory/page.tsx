@@ -15,7 +15,10 @@ import {
   btnPrimary,
   rowCls,
   useAdminFetch,
+  DateRange,
+  rangeQuery,
 } from "@/components/admin/ui";
+import { InventoryLog } from "@/components/admin/inventory-log";
 
 interface InvProduct {
   id: string;
@@ -38,8 +41,13 @@ interface InvLog {
 export default function InventoryPage() {
   const token = useAuth((s) => s.accessToken);
   const { data, error, loading, reload } = useAdminFetch<{ products: InvProduct[] }>("/admin/inventory");
-  const [logProductId, setLogProductId] = useState("");
-  const logs = useAdminFetch<{ logs: InvLog[] }>(`/admin/inventory/logs?productId=${logProductId}`);
+  // the row button opens a dialog; the panel below stays an unfiltered overview
+  const [logProduct, setLogProduct] = useState<InvProduct | null>(null);
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const logs = useAdminFetch<{ logs: InvLog[]; summary: { sold: number; received: number; movements: number } }>(
+    `/admin/inventory/logs?page=1${rangeQuery(from, to)}`
+  );
 
   const [adjustId, setAdjustId] = useState<string | null>(null);
   const [delta, setDelta] = useState("");
@@ -102,7 +110,7 @@ export default function InventoryPage() {
                   </Td>
                   <Td>
                     <div className="flex justify-end gap-2">
-                      <button className={btnGhost} onClick={() => setLogProductId(logProductId === p.id ? "" : p.id)}>
+                      <button className={btnGhost} onClick={() => setLogProduct(p)}>
                         Logs
                       </button>
                       <button className={btnGhost} onClick={() => openAdjust(p.id)}>
@@ -147,15 +155,23 @@ export default function InventoryPage() {
       </Panel>
 
       <Panel
-        title={logProductId ? "Inventory logs (filtered)" : "Recent inventory logs"}
-        actions={
-          logProductId ? (
-            <button className={btnGhost} onClick={() => setLogProductId("")}>
-              Show all
-            </button>
-          ) : undefined
-        }
+        title={from || to ? "Inventory movements" : "Recent inventory movements"}
+        actions={<DateRange from={from} to={to} onChange={(f, t) => { setFrom(f); setTo(t); }} />}
       >
+        {logs.data && (
+          <div className="mb-4 grid grid-cols-3 gap-3">
+            {[
+              { label: from || to ? "Bought in range" : "Bought (recent)", value: `${logs.data.summary.sold} units` },
+              { label: "Received", value: `+${logs.data.summary.received}` },
+              { label: "Movements", value: String(logs.data.summary.movements) },
+            ].map((s) => (
+              <div key={s.label} className="rounded-xl border border-white/10 bg-black/20 px-4 py-3">
+                <p className="text-[0.65rem] uppercase tracking-widest text-ivory/40">{s.label}</p>
+                <p className="mt-1 text-lg font-semibold text-ivory">{s.value}</p>
+              </div>
+            ))}
+          </div>
+        )}
         {logs.error && <Note>{logs.error}</Note>}
         {logs.loading ? (
           <PageLoader />
@@ -177,6 +193,16 @@ export default function InventoryPage() {
           <EmptyState label="No inventory movements yet" />
         )}
       </Panel>
+
+      {logProduct && (
+        <InventoryLog
+          productId={logProduct.id}
+          productName={logProduct.name}
+          sku={logProduct.sku}
+          stock={logProduct.stock}
+          onClose={() => setLogProduct(null)}
+        />
+      )}
     </div>
   );
 }
