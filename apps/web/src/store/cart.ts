@@ -1,7 +1,8 @@
 "use client";
 import { create } from "zustand";
-import { createJSONStorage, persist, type PersistStorage } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 import { useAuth } from "@/store/auth";
+import { mergeItems } from "@/lib/cart-merge";
 
 export interface CartItem {
   productId: string;
@@ -31,12 +32,12 @@ interface CartState {
 }
 
 const userStorage = createJSONStorage<CartState>(() => localStorage);
-const noStorage: PersistStorage<CartState> = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
 
 // One storage key per signed-in user, so a cart never leaks between accounts on a shared device.
 function cartKey(userId: string | null) {
   return userId ? `madhura-cart-${userId}` : "madhura-cart-guest";
 }
+
 
 export const useCart = create<CartState>()(
   persist(
@@ -83,8 +84,11 @@ export const useCart = create<CartState>()(
       setPincode: (pincode) => set({ pincode }),
       clear: () => set({ items: [], couponCode: null }),
     }),
-    // guests start with an empty basket and leave nothing behind: no persistence until sign-in
-    { name: cartKey(null), storage: noStorage }
+    /* Guests persist too — the shop takes guest orders, so losing the basket on a
+       refresh cost real checkouts. skipHydration because reading localStorage during
+       the hydrating render would make the header's cart count disagree with the
+       server HTML; Providers calls rehydrate() once mounted instead. */
+    { name: cartKey(null), storage: userStorage, skipHydration: true }
   )
 );
 
@@ -95,7 +99,17 @@ const empty = { items: [], savedForLater: [], couponCode: null, pincode: null };
 useAuth.subscribe((s, prev) => {
   const id = s.user?.id ?? null;
   if (id === (prev.user?.id ?? null)) return;
+  /* Anything in the basket at the moment of sign-in was put there as a guest, so it
+     merges into the account's saved cart rather than being overwritten by it —
+     otherwise the shopper loses their basket at the exact moment they log in to pay.
+     Signing OUT still drops to empty: the next person on this device must not inherit
+     the previous account's items. */
+  const guestItems = prev.user ? [] : useCart.getState().items;
   const stored = id ? userStorage?.getItem(cartKey(id)) : null;
-  useCart.persist.setOptions({ name: cartKey(id), storage: id ? userStorage : noStorage });
-  void Promise.resolve(stored).then((v) => useCart.setState({ ...empty, ...v?.state }));
+  useCart.persist.setOptions({ name: cartKey(id), storage: userStorage });
+  void Promise.resolve(stored).then((v) => {
+    if (!id) return useCart.setState(empty);
+    const saved = { ...empty, ...v?.state };
+    useCart.setState({ ...saved, items: mergeItems(saved.items, guestItems) });
+  });
 });

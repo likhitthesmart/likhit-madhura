@@ -3,6 +3,7 @@ import { useEffect, type PropsWithChildren } from "react";
 import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import { useAuth } from "@/store/auth";
+import { useCart } from "@/store/cart";
 import { usePrefs } from "@/store/prefs";
 
 // held so the scroll-to-top below can go through Lenis — a plain window.scrollTo is
@@ -57,6 +58,11 @@ function useScrollTop() {
 function useSessionBootstrap() {
   const bootstrap = useAuth((s) => s.bootstrap);
   useEffect(() => {
+    // Guest basket reads localStorage here rather than at store creation: doing it
+    // during the hydrating render would make the header's cart count disagree with
+    // the server HTML. Runs before bootstrap so a guest basket is already in state
+    // when sign-in merges it into the account's cart.
+    void useCart.persist.rehydrate();
     void bootstrap();
   }, [bootstrap]);
 
