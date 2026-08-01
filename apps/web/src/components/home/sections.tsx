@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import { INSTAGRAM_URL, INSTAGRAM_HANDLE } from "@/lib/social";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Award, Droplets, Leaf, MilkOff, Minus, Plus, ShieldCheck, Sprout, Star, Sun, Truck, Wheat } from "lucide-react";
@@ -271,12 +272,12 @@ const instaShots = [
 export function InstagramGallery() {
   return (
     <section className="container-page py-24">
-      <SectionHeading eyebrow="@madhuranaturals" title="From our kitchens to yours" sub="Tag us when you cook — the best plates make it to our farm letters." />
+      <SectionHeading eyebrow={`@${INSTAGRAM_HANDLE}`} title="From our kitchens to yours" sub="Tag us when you cook — the best plates make it to our farm letters." />
       <Stagger className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {instaShots.map((s) => (
           <StaggerItem key={s.img}>
             <a
-              href="https://instagram.com/madhuranaturals"
+              href={INSTAGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="group relative block aspect-square overflow-hidden rounded-2xl"

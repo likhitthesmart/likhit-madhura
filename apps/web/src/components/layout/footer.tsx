@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Facebook, Instagram, Mail, MapPin, Phone, Youtube } from "lucide-react";
+import { FACEBOOK_URL, INSTAGRAM_URL, YOUTUBE_URL } from "@/lib/social";
 import { Logo } from "../ui/logo";
 import { NewsletterForm } from "../ui/newsletter";
 
@@ -62,9 +63,9 @@ export function Footer() {
           </div>
           <div className="mt-6 flex gap-3">
             {[
-              { icon: Instagram, href: "https://instagram.com/madhuranaturals", label: "Instagram" },
-              { icon: Facebook, href: "https://facebook.com/madhuranaturals", label: "Facebook" },
-              { icon: Youtube, href: "https://youtube.com/@madhuranaturals", label: "YouTube" },
+              { icon: Instagram, href: INSTAGRAM_URL, label: "Instagram" },
+              { icon: Facebook, href: FACEBOOK_URL, label: "Facebook" },
+              { icon: Youtube, href: YOUTUBE_URL, label: "YouTube" },
             ].map(({ icon: Icon, href, label }) => (
               <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label} className="rounded-full border border-ivory/20 p-2.5 transition hover:border-gold-light hover:text-gold-light">
                 <Icon className="h-4 w-4" />

@@ -8,6 +8,7 @@ import { Chatbot } from "@/components/layout/chatbot";
 import { PageTransition } from "@/components/layout/page-transition";
 import { LeadCapture } from "@/components/layout/lead-capture";
 import { themeInitScript } from "@/store/theme";
+import { FACEBOOK_URL, INSTAGRAM_URL, YOUTUBE_URL } from "@/lib/social";
 
 const display = Cormorant_Garamond({
   subsets: ["latin"],
@@ -54,7 +55,7 @@ const orgJsonLd = {
   name: "Madhura Naturals",
   url: siteUrl,
   logo: `${siteUrl}/icon.svg`,
-  sameAs: ["https://instagram.com/madhuranaturals", "https://facebook.com/madhuranaturals"],
+  sameAs: [INSTAGRAM_URL, FACEBOOK_URL, YOUTUBE_URL],
   contactPoint: { "@type": "ContactPoint", telephone: "+91-98765-43210", contactType: "customer service" },
 };
 

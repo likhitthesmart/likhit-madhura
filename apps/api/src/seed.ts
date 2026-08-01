@@ -384,7 +384,7 @@ async function main() {
         email: "care@madhuranaturals.in",
         address: "Madhura Naturals, Plot 12, Organic Farmers Colony, Zaheerabad, Telangana 502220",
         hours: "Mon–Sat, 9:00 AM – 6:00 PM IST",
-        instagram: "https://instagram.com/madhuranaturals",
+        instagram: "https://www.instagram.com/madhuranaturals_/",
         facebook: "https://facebook.com/madhuranaturals",
         youtube: "https://youtube.com/@madhuranaturals",
       },
