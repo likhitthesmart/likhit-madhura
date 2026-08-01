@@ -53,6 +53,10 @@ app.use(
 );
 app.get("/api/docs.json", (_req, res) => res.json(openapiDocument));
 
+// Someone opening the API host in a browser lands on the docs rather than a bare
+// "Cannot GET /" — this host has no UI of its own.
+app.get("/", (_req, res) => res.redirect("/api/docs"));
+
 app.get("/api/v1/health", (_req, res) => res.json({ ok: true }));
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1", catalogRouter); // /categories /products /search
