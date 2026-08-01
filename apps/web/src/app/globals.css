@@ -213,8 +213,11 @@ body {
   @apply text-forest-800;
 }
 
+/* bg-transparent is required, not decorative: the base rule above sets a
+   background-COLOR, and bg-gradient-to-b only sets background-IMAGE, so without
+   it the cream stays painted underneath the gradient and the video never shows. */
 body:has(#hero) .site-header[data-solid="false"] {
-  @apply bg-gradient-to-b from-deep-950/50 to-transparent shadow-none backdrop-blur-none;
+  @apply bg-transparent bg-gradient-to-b from-deep-950/50 to-transparent shadow-none backdrop-blur-none;
 }
 body:has(#hero) .site-header[data-solid="false"] .hdr-link {
   @apply text-ivory/90;
