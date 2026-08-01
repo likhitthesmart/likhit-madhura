@@ -121,8 +121,8 @@ export default function CategoriesPage() {
                   {c.description && <p className="max-w-xs truncate text-xs text-bark/70">{c.description}</p>}
                 </Td>
                 <Td className="text-bark">{c.slug}</Td>
-                <Td className="tabular-nums">{c._count.products}</Td>
-                <Td className="tabular-nums text-bark/80">{c.sortOrder}</Td>
+                <Td className="nums">{c._count.products}</Td>
+                <Td className="nums text-bark/80">{c.sortOrder}</Td>
                 <Td>
                   <StatusBadge status={c.active ? "ACTIVE" : "INACTIVE"} />
                 </Td>

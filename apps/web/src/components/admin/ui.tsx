@@ -140,8 +140,7 @@ export function StatCard({
   return (
     <div className={cn("rounded-2xl border border-sand bg-surface shadow-soft transition-colors hover:border-gold/40", lg ? "p-5" : "p-4")}>
       <p className="text-[11px] font-medium uppercase tracking-wider text-bark">{label}</p>
-      {/* tabular-nums so digits keep their columns as the numbers tick over */}
-      <p className={cn("mt-1.5 font-display font-semibold tabular-nums text-ink", lg ? "text-4xl" : "text-2xl")}>{value}</p>
+      <p className={cn("nums mt-1.5 font-semibold text-ink", lg ? "text-4xl" : "text-2xl")}>{value}</p>
       {hint && <p className="mt-1 text-xs text-forest-600">{hint}</p>}
     </div>
   );
@@ -637,7 +636,7 @@ export function BarChart({
       <div className="flex gap-2">
         {/* Value axis lives outside the SVG: preserveAspectRatio="none" stretches the
             viewBox horizontally to fit, which would smear any text drawn inside it. */}
-        <div className="flex h-44 shrink-0 flex-col justify-between text-right text-[10px] tabular-nums leading-none text-bark/70">
+        <div className="flex h-44 shrink-0 flex-col justify-between nums text-right text-[10px] leading-none text-bark/70">
           {[...grid].reverse().map((g) => (
             <span key={g}>{fmt(Math.round(max * g))}</span>
           ))}
@@ -713,7 +712,7 @@ export function Bars({
         <div key={i}>
           <div className="mb-1 flex justify-between gap-4 text-xs">
             <span className="truncate font-medium text-ink/80">{it.label}</span>
-            <span className="shrink-0 tabular-nums text-bark">{it.hint ?? it.value.toLocaleString("en-IN")}</span>
+            <span className="nums shrink-0 text-bark">{it.hint ?? it.value.toLocaleString("en-IN")}</span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-sand">
             <div

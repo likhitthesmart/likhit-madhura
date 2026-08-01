@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Manrope } from "next/font/google";
+import { Cormorant_Garamond, Manrope, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/layout/providers";
 import { Header } from "@/components/layout/header";
@@ -15,6 +15,16 @@ const display = Cormorant_Garamond({
   variable: "--font-display",
 });
 const body = Manrope({ subsets: ["latin"], variable: "--font-body" });
+
+/* Figures only. Cormorant Garamond sets numbers as old-style figures — the 1, 6 and
+   4 all sit at different heights, which made "₹1,164" read as unsteady and shrank
+   "10" next to its label. This is a newspaper text serif with lining, tabular
+   figures, so digits share one height and one width. Two weights, latin only. */
+const numeric = Source_Serif_4({
+  subsets: ["latin"],
+  weight: ["600", "700"],
+  variable: "--font-numeric",
+});
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
@@ -50,7 +60,7 @@ const orgJsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${display.variable} ${body.variable} ${numeric.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>

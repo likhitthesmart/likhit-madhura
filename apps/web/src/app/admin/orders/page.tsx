@@ -159,7 +159,7 @@ export default function OrdersPage() {
                       {o.items.map((i) => `${i.name} ×${i.qty}`).join(", ")}
                     </p>
                   </Td>
-                  <Td className="tabular-nums">{inr(o.total)}</Td>
+                  <Td className="nums">{inr(o.total)}</Td>
                   <Td>
                     <StatusBadge status={o.status} />
                   </Td>

@@ -103,8 +103,8 @@ export default function InventoryPage() {
                   <Td className="font-medium text-ink">{p.name}</Td>
                   <Td className="text-bark">{p.sku}</Td>
                   <Td className="text-bark">{p.unit}</Td>
-                  <Td className={low ? "font-semibold text-rose-700 dark:text-rose-300" : "tabular-nums"}>{p.stock}</Td>
-                  <Td className="tabular-nums text-bark/80">{p.lowStockAlert}</Td>
+                  <Td className={low ? "font-semibold text-rose-700 dark:text-rose-300" : "nums"}>{p.stock}</Td>
+                  <Td className="nums text-bark/80">{p.lowStockAlert}</Td>
                   <Td>
                     <StatusBadge status={p.active ? (low ? "LOW STOCK" : "ACTIVE") : "INACTIVE"} />
                   </Td>

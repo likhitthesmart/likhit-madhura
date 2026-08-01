@@ -150,9 +150,9 @@ export default function OrderDetailPage() {
                   {it.name}
                   {it.unit && <span className="ml-1 text-xs text-bark/70">({it.unit})</span>}
                 </Td>
-                <Td className="tabular-nums">{it.qty}</Td>
-                <Td className="tabular-nums">{inr(it.price)}</Td>
-                <Td className="tabular-nums">{inr(it.price * it.qty)}</Td>
+                <Td className="nums">{it.qty}</Td>
+                <Td className="nums">{inr(it.price)}</Td>
+                <Td className="nums">{inr(it.price * it.qty)}</Td>
               </tr>
             ))}
           </Table>
@@ -160,30 +160,30 @@ export default function OrderDetailPage() {
             {order.subtotal != null && (
               <p className="flex justify-between text-bark">
                 <span>Subtotal</span>
-                <span className="tabular-nums">{inr(order.subtotal)}</span>
+                <span className="nums">{inr(order.subtotal)}</span>
               </p>
             )}
             {order.discount != null && order.discount > 0 && (
               <p className="flex justify-between text-emerald-700 dark:text-emerald-300">
                 <span>Discount</span>
-                <span className="tabular-nums">−{inr(order.discount)}</span>
+                <span className="nums">−{inr(order.discount)}</span>
               </p>
             )}
             {order.shippingFee != null && (
               <p className="flex justify-between text-bark">
                 <span>Shipping</span>
-                <span className="tabular-nums">{inr(order.shippingFee)}</span>
+                <span className="nums">{inr(order.shippingFee)}</span>
               </p>
             )}
             {order.tax != null && order.tax > 0 && (
               <p className="flex justify-between text-bark">
                 <span>Tax</span>
-                <span className="tabular-nums">{inr(order.tax)}</span>
+                <span className="nums">{inr(order.tax)}</span>
               </p>
             )}
             <p className="flex justify-between border-t border-sand pt-1.5 font-semibold text-ink">
               <span>Total</span>
-              <span className="tabular-nums">{inr(order.total)}</span>
+              <span className="nums">{inr(order.total)}</span>
             </p>
           </div>
         </Panel>

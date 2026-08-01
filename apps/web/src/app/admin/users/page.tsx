@@ -119,7 +119,7 @@ export default function UsersPage() {
                     <p className="text-ink/75">{u.email}</p>
                     {u.phone && <p className="text-xs text-bark/70">{u.phone}</p>}
                   </Td>
-                  <Td className="tabular-nums">{u._count.orders}</Td>
+                  <Td className="nums">{u._count.orders}</Td>
                   <Td>
                     {isAdmin ? (
                       <Select

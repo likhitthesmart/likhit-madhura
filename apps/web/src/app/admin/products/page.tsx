@@ -215,9 +215,9 @@ export default function ProductsPage() {
                   </Td>
                   <Td className="text-bark">{p.category?.name ?? "—"}</Td>
                   <Td className="text-bark">{p.sku}</Td>
-                  <Td className="tabular-nums">{inr(p.price)}</Td>
-                  <Td className="tabular-nums text-bark/80">{inr(p.mrp)}</Td>
-                  <Td className={p.stock <= p.lowStockAlert ? "font-medium text-rose-700 dark:text-rose-300" : "tabular-nums"}>{p.stock}</Td>
+                  <Td className="nums">{inr(p.price)}</Td>
+                  <Td className="nums text-bark/80">{inr(p.mrp)}</Td>
+                  <Td className={p.stock <= p.lowStockAlert ? "font-medium text-rose-700 dark:text-rose-300" : "nums"}>{p.stock}</Td>
                   <Td>
                     <StatusBadge status={p.active ? "ACTIVE" : "INACTIVE"} />
                   </Td>

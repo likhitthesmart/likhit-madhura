@@ -106,8 +106,8 @@ function AnalyticsModal({ coupon, onClose }: { coupon: Coupon; onClose: () => vo
               {data.redemptions.map((r) => (
                 <tr key={r.id} className={rowCls}>
                   <Td className="text-gold">{r.order.orderNo}</Td>
-                  <Td className="tabular-nums">{inr(r.order.total)}</Td>
-                  <Td className="tabular-nums text-emerald-700 dark:text-emerald-300">−{inr(r.amount)}</Td>
+                  <Td className="nums">{inr(r.order.total)}</Td>
+                  <Td className="nums text-emerald-700 dark:text-emerald-300">−{inr(r.amount)}</Td>
                   <Td className="text-bark/80">{new Date(r.at).toLocaleString("en-IN")}</Td>
                 </tr>
               ))}
@@ -231,7 +231,7 @@ export default function CouponsPage() {
                   {c.startsAt ? new Date(c.startsAt).toLocaleDateString("en-IN") : "…"} →{" "}
                   {c.endsAt ? new Date(c.endsAt).toLocaleDateString("en-IN") : "…"}
                 </Td>
-                <Td className="tabular-nums">
+                <Td className="nums">
                   {c.usedCount}
                   {c.usageLimit != null && <span className="text-bark/70">/{c.usageLimit}</span>}
                 </Td>

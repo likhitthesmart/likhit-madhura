@@ -160,7 +160,7 @@ export default function DashboardPage() {
                   </Link>
                 </Td>
                 <Td>{o.email}</Td>
-                <Td className="tabular-nums">{inr(o.total)}</Td>
+                <Td className="nums">{inr(o.total)}</Td>
                 <Td>
                   <StatusBadge status={o.status} />
                 </Td>

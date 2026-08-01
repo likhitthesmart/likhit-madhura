@@ -88,7 +88,7 @@ export function CustomerDetail({ userId, onClose }: { userId: string; onClose: (
                           {i.name}
                           <span className="ml-2 text-xs text-bark/70">{i.unit} × {i.qty}</span>
                         </span>
-                        <span className="tabular-nums text-ink/75">{inr(i.price * i.qty)}</span>
+                        <span className="nums text-ink/75">{inr(i.price * i.qty)}</span>
                       </li>
                     ))}
                   </ul>

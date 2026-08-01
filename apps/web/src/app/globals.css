@@ -233,6 +233,14 @@ body:has(#hero) .site-header[data-solid="false"] .logo-sub {
   @apply text-ivory/80;
 }
 
+/* One class for every figure in the admin console. `lining-nums` is the fix for the
+   wobbly digits; `tabular-nums` keeps columns of numbers aligned and stops a metric
+   jittering sideways as it ticks over. */
+.nums {
+  @apply font-numeric;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
 .page-enter {
   animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }

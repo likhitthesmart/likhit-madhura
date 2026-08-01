@@ -136,8 +136,8 @@ export default function ShippingPage() {
                 <Td className="max-w-[240px]">
                   <p className="truncate text-bark">{z.pincodePrefixes.join(", ")}</p>
                 </Td>
-                <Td className="tabular-nums">{inr(z.fee)}</Td>
-                <Td className="tabular-nums text-bark">{z.freeAbove != null ? inr(z.freeAbove) : "—"}</Td>
+                <Td className="nums">{inr(z.fee)}</Td>
+                <Td className="nums text-bark">{z.freeAbove != null ? inr(z.freeAbove) : "—"}</Td>
                 <Td className="text-bark">
                   {z.etaDaysMin}–{z.etaDaysMax} days
                 </Td>

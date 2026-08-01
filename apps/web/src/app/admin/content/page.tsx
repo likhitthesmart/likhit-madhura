@@ -368,7 +368,7 @@ function FaqsTab() {
                 <p className="max-w-md truncate text-xs text-bark/70">{f.answer}</p>
               </Td>
               <Td className="text-bark">{f.category}</Td>
-              <Td className="tabular-nums text-bark/80">{f.sortOrder}</Td>
+              <Td className="nums text-bark/80">{f.sortOrder}</Td>
               <Td>
                 <StatusBadge status={f.active ? "ACTIVE" : "INACTIVE"} />
               </Td>

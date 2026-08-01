@@ -36,6 +36,9 @@ export default {
       fontFamily: {
         display: ["var(--font-display)", "Georgia", "serif"],
         body: ["var(--font-body)", "system-ui", "sans-serif"],
+        // figures: see the note in app/layout.tsx — the display serif's old-style
+        // numerals are unusable for dashboard metrics
+        numeric: ["var(--font-numeric)", "Georgia", "serif"],
       },
       boxShadow: {
         soft: "0 8px 30px -12px var(--c-shadow)",
