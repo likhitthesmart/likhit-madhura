@@ -51,7 +51,10 @@ ordersRouter.post(
   wrap(async (req, res) => {
     const body = cartBody
       .extend({
-        email: z.string().email(),
+        // lowercased to match the User table and /track, which both lowercase.
+        // Postgres compares case-sensitively, so "Ravi@Gmail.com" here would
+        // orphan the order: invisible to tracking and never claimed at signup.
+        email: z.string().email().toLowerCase(),
         phone: indianMobile,
         shippingAddress: addressJson,
         billingAddress: addressJson.optional(),
