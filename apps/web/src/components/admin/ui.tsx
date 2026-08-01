@@ -12,6 +12,7 @@ import {
 import { Loader2, X } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/store/auth";
+import { useBodyScrollLock } from "@/components/layout/providers";
 import { cn } from "@/lib/format";
 
 /* ---------- data fetching ---------- */
@@ -232,19 +233,7 @@ export function Modal({
 }) {
   // Lock the page behind the dialog: without this the wheel scrolls the admin
   // table under the overlay once the dialog's own content reaches its end.
-  // The padding replaces the width the scrollbar gave up, so nothing shifts.
-  useEffect(() => {
-    const { body } = document;
-    const prevOverflow = body.style.overflow;
-    const prevPadding = body.style.paddingRight;
-    const gap = window.innerWidth - document.documentElement.clientWidth;
-    body.style.overflow = "hidden";
-    if (gap > 0) body.style.paddingRight = `${gap}px`;
-    return () => {
-      body.style.overflow = prevOverflow;
-      body.style.paddingRight = prevPadding;
-    };
-  }, []);
+  useBodyScrollLock(true);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();

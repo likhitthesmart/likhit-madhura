@@ -41,6 +41,28 @@ export function scrollToTop() {
   window.scrollTo(0, 0);
 }
 
+/** Freeze the page behind a modal or drawer for as long as `active` is true.
+ *  Stopping Lenis is not optional: it scrolls the window itself from raw wheel
+ *  deltas, so body{overflow:hidden} alone leaves the page moving underneath.
+ *  The padding swap replaces the width the scrollbar gives up, so nothing shifts. */
+export function useBodyScrollLock(active: boolean) {
+  useEffect(() => {
+    if (!active) return;
+    const { body } = document;
+    const prevOverflow = body.style.overflow;
+    const prevPadding = body.style.paddingRight;
+    const gap = window.innerWidth - document.documentElement.clientWidth;
+    body.style.overflow = "hidden";
+    if (gap > 0) body.style.paddingRight = `${gap}px`;
+    lenisRef?.stop();
+    return () => {
+      body.style.overflow = prevOverflow;
+      body.style.paddingRight = prevPadding;
+      lenisRef?.start();
+    };
+  }, [active]);
+}
+
 /* The browser restores the previous scroll position before a streamed page has its
    full height, so it clamps somewhere mid-page and stays there. Own the position
    instead: manual restoration, then top on every route.

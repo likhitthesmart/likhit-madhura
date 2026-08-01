@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { SlidersHorizontal, X } from "lucide-react";
 import type { Category } from "@/lib/api";
 import { cn } from "@/lib/format";
+import { scrollToTop, useBodyScrollLock } from "@/components/layout/providers";
 
 const sorts = [
   { v: "popular", l: "Most popular" },
@@ -32,15 +33,33 @@ export function Filters({ categories }: { categories: Category[] }) {
   const sp = useSearchParams();
   const [open, setOpen] = useState(false);
 
+  // the page behind must not keep scrolling while the drawer is open
+  useBodyScrollLock(open);
+
+  /* Every filter change lands the customer at the top of the new results.
+     `scroll: false` alone left them wherever they were, and since a filter usually
+     makes the grid SHORTER, the browser clamped that position to the new document
+     height — picking a category with few products dumped you at the footer. Whether
+     it happened at all depended on the category's product count, which is why it
+     looked random. Also closes the drawer so the results are actually visible. */
+  const commit = useCallback(
+    (next: URLSearchParams) => {
+      next.delete("page");
+      setOpen(false);
+      router.push(`/shop?${next.toString()}`, { scroll: false });
+      scrollToTop();
+    },
+    [router]
+  );
+
   const setParam = useCallback(
     (key: string, value: string | null) => {
       const next = new URLSearchParams(sp.toString());
       if (value === null || value === "") next.delete(key);
       else next.set(key, value);
-      next.delete("page");
-      router.push(`/shop?${next.toString()}`, { scroll: false });
+      commit(next);
     },
-    [router, sp]
+    [commit, sp]
   );
 
   /* Price is committed explicitly rather than on every keystroke, so the boxes need
@@ -63,9 +82,8 @@ export function Filters({ categories }: { categories: Category[] }) {
       if (value) next.set(key, value);
       else next.delete(key);
     }
-    next.delete("page");
-    router.push(`/shop?${next.toString()}`, { scroll: false });
-  }, [minPrice, maxPrice, urlMin, urlMax, router, sp]);
+    commit(next);
+  }, [minPrice, maxPrice, urlMin, urlMax, commit, sp]);
 
   const category = sp.get("category");
   const sort = sp.get("sort") ?? "popular";
@@ -168,7 +186,7 @@ export function Filters({ categories }: { categories: Category[] }) {
       </div>
       {/* setOpen(false) also closes the mobile drawer; a no-op for the desktop rail */}
       {hasFilters && (
-        <button onClick={() => { setOpen(false); router.push("/shop"); }} className="btn-secondary w-full py-2 text-xs">
+        <button onClick={() => commit(new URLSearchParams())} className="btn-secondary w-full py-2 text-xs">
           <X className="h-3.5 w-3.5" /> Clear all filters
         </button>
       )}

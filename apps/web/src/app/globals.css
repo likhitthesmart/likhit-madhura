@@ -241,8 +241,13 @@ body:has(#hero) .site-header[data-solid="false"] .logo-sub {
   font-variant-numeric: lining-nums tabular-nums;
 }
 
+/* `backwards`, NOT `both`. A forwards-filling animation on opacity keeps filling
+   after it ends, so <main> would hold an animated opacity forever and stay a
+   stacking context — trapping the shop filter drawer's z-[60] inside it, where the
+   footer (a later `relative` sibling) painted straight over the open drawer.
+   Nothing is lost: the final keyframe is opacity:1, which is already the default. */
 .page-enter {
-  animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 @media (prefers-reduced-motion: reduce) {
   .page-enter {
