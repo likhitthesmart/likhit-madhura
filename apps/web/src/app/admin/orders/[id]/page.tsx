@@ -6,6 +6,7 @@ import { ArrowLeft, Printer } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/store/auth";
 import { inr } from "@/lib/format";
+import { Invoice } from "@/components/commerce/invoice";
 import {
   Field,
   Input,
@@ -34,6 +35,7 @@ interface OrderDetail {
   paymentStatus: string;
   subtotal?: number;
   discount?: number;
+  couponCode?: string | null;
   shippingFee?: number;
   tax?: number;
   total: number;
@@ -91,15 +93,39 @@ export default function OrderDetailPage() {
   const addr = order.shippingAddress;
   const timeline = Array.isArray(order.timeline) ? order.timeline : [];
 
+  /* The admin API types the money columns and item ids as optional, but the schema
+     has them non-null (Order.subtotal/tax/… are Int, shippingAddress is Json), so the
+     fallbacks below are belt-and-braces rather than a real case. */
+  const invoiceOrder = addr && {
+    orderNo: order.orderNo,
+    createdAt: order.createdAt,
+    paymentStatus: order.paymentStatus,
+    subtotal: order.subtotal ?? 0,
+    discount: order.discount ?? 0,
+    couponCode: order.couponCode,
+    shippingFee: order.shippingFee ?? 0,
+    tax: order.tax ?? 0,
+    total: order.total,
+    shippingAddress: {
+      name: addr.name ?? "",
+      phone: addr.phone ?? order.phone,
+      line1: addr.line1 ?? "",
+      line2: addr.line2,
+      city: addr.city ?? "",
+      state: addr.state ?? "",
+      pincode: addr.pincode ?? "",
+    },
+    items: order.items.map((it, i) => ({
+      id: it.id ?? String(i),
+      name: it.name,
+      unit: it.unit ?? "",
+      price: it.price,
+      qty: it.qty,
+    })),
+  };
+
   return (
     <div className="space-y-6">
-      {/* print invoice styles: only the #invoice block is visible when printing */}
-      <style>{`@media print {
-        body { background: #fff !important; }
-        body * { visibility: hidden; }
-        #invoice, #invoice * { visibility: visible; }
-        #invoice { display: block !important; position: absolute; left: 0; top: 0; width: 100%; padding: 24px; color: #000; }
-      }`}</style>
 
       <div className="flex flex-wrap items-center gap-3">
         <Link href="/admin/orders" className={btnGhost}>
@@ -236,45 +262,10 @@ export default function OrderDetailPage() {
         )}
       </Panel>
 
-      {/* printable invoice (hidden on screen) */}
-      <div id="invoice" className="hidden">
-        <h1 style={{ fontSize: 22, marginBottom: 4 }}>Madhura Naturals — Tax Invoice</h1>
-        <p>Order {order.orderNo} · {new Date(order.createdAt).toLocaleString("en-IN")}</p>
-        <p style={{ marginTop: 12 }}>
-          <strong>Bill to:</strong> {order.email} · {order.phone}
-          {addr && (
-            <>
-              <br />
-              {[addr.name, addr.line1, addr.line2, addr.city, addr.state, addr.pincode].filter(Boolean).join(", ")}
-            </>
-          )}
-        </p>
-        <table style={{ width: "100%", marginTop: 16, borderCollapse: "collapse" }}>
-          <thead>
-            <tr>
-              {["Item", "Qty", "Price", "Total"].map((h) => (
-                <th key={h} style={{ borderBottom: "1px solid #000", textAlign: "left", padding: "6px 4px" }}>
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {order.items.map((it, i) => (
-              <tr key={i}>
-                <td style={{ padding: "5px 4px" }}>{it.name}</td>
-                <td style={{ padding: "5px 4px" }}>{it.qty}</td>
-                <td style={{ padding: "5px 4px" }}>{inr(it.price)}</td>
-                <td style={{ padding: "5px 4px" }}>{inr(it.price * it.qty)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <p style={{ marginTop: 12, fontSize: 16 }}>
-          <strong>Grand total: {inr(order.total)}</strong>
-        </p>
-        <p style={{ marginTop: 20, fontSize: 12 }}>Thank you for choosing Madhura Naturals.</p>
-      </div>
+      {/* Portalled to <body> with .print-sheet, which is the one shape the global
+          print rules in globals.css actually honour. Shares the customer-facing
+          invoice, so both copies of a given order are identical documents. */}
+      {invoiceOrder && <Invoice order={invoiceOrder} />}
     </div>
   );
 }
