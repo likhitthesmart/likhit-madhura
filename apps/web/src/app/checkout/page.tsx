@@ -27,6 +27,12 @@ const toForm = (a: SavedAddress): AddressForm => ({
 
 const steps = ["Address", "Review", "Payment"] as const;
 
+/* Checkout progress survives a refresh. sessionStorage rather than localStorage on
+   purpose: this holds an email and a full postal address, and a tab that is closed
+   should not leave them on a shared machine. It is per-tab and dies with the tab,
+   which still covers the reload/back-forward case this exists for. */
+const CHECKOUT_KEY = "madhura-checkout";
+
 interface RazorpayInstance {
   open(): void;
   on(event: string, handler: (r: unknown) => void): void;
@@ -175,12 +181,52 @@ export default function CheckoutPage() {
       .catch(() => undefined);
   }, [items, couponCode, shipping.pincode, accessToken]);
 
+  /* Restore after mount, never in the useState initialisers: reading storage during
+     the hydrating render would leave the client on step 1 while the server HTML says
+     step 0, and React discards the tree. A frame on Address first is the trade. */
+  const [restored, setRestored] = useState(false);
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(CHECKOUT_KEY) ?? "null");
+      if (saved) {
+        if (saved.email) setEmail(saved.email);
+        if (saved.shipping) setShipping(saved.shipping);
+        if (typeof saved.billingSame === "boolean") setBillingSame(saved.billingSame);
+        if (saved.billing) setBilling(saved.billing);
+        if (saved.giftNote) setGiftNote(saved.giftNote);
+        // order+intent too, or a refresh on Payment renders a blank step while a real
+        // PENDING order sits on the server counting down to expiry
+        if (saved.order) setOrder(saved.order);
+        if (saved.intent) setIntent(saved.intent);
+        if (typeof saved.step === "number") setStep(saved.step);
+      }
+    } catch {
+      /* unparseable blob from an older build — start the customer fresh */
+    }
+    setRestored(true);
+  }, []);
+
+  // gated on `restored` so the empty first render cannot overwrite the saved blob
+  useEffect(() => {
+    if (!restored) return;
+    try {
+      sessionStorage.setItem(
+        CHECKOUT_KEY,
+        JSON.stringify({ step, email, shipping, billingSame, billing, giftNote, order, intent })
+      );
+    } catch {
+      /* private mode or quota — checkout still works, it just will not resume */
+    }
+  }, [restored, step, email, shipping, billingSame, billing, giftNote, order, intent]);
+
   const canReview = useMemo(
     () => email.includes("@") && !!shipping.name && MOBILE_RE.test(shipping.phone) && !!shipping.line1 && !!shipping.city && IN_STATES.includes(shipping.state as (typeof IN_STATES)[number]) && /^\d{6}$/.test(shipping.pincode),
     [email, shipping]
   );
 
-  if (!items.length && !order)
+  // waits for the restore above (and the cart's own rehydrate) so a reload mid-checkout
+  // does not flash "Nothing to check out" before the saved basket and step come back
+  if (restored && !items.length && !order)
     return (
       <div className="container-page flex min-h-[60vh] flex-col items-center justify-center pt-24 text-center">
         <h1 className="font-display text-3xl text-forest-900">Nothing to check out</h1>
@@ -223,6 +269,12 @@ export default function CheckoutPage() {
     await api(`/orders/${order.id}/pay`, { method: "POST", body: JSON.stringify(gatewayPayload) });
     trackEvent("purchase", { orderNo: order.orderNo, total: order.total });
     clear();
+    // paid and leaving — nothing left to resume, and the address should not linger
+    try {
+      sessionStorage.removeItem(CHECKOUT_KEY);
+    } catch {
+      /* storage unavailable; the tab closing clears it anyway */
+    }
     router.push(`/checkout/result?status=success&orderNo=${order.orderNo}&id=${order.id}`);
   };
 
