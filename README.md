@@ -71,3 +71,4 @@ TLS is terminated there too — the stack itself serves plain HTTP.
 ## Regenerating brand imagery
 
 All visuals were generated with **Higgsfield AI** (nano-banana image model + Kling 3.0 Turbo for the hero film). `assets-manifest.json` maps every media file to its generation job ID; prompts follow a house style — warm golden-hour South Indian scenes, earthy olive/beige/gold palette, "MADHURA NATURALS" kraft-label packshots.
+# likhit-madhura
