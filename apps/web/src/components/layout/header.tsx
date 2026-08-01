@@ -148,8 +148,6 @@ export function Header() {
   const items = useCart((s) => s.items);
   const user = useAuth((s) => s.user);
   const pathname = usePathname();
-  const onHome = pathname === "/";
-
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
@@ -159,30 +157,29 @@ export function Header() {
 
   useEffect(() => setMenuOpen(false), [pathname]);
 
-  const solid = scrolled || !onHome || menuOpen;
+  /* Deliberately does NOT consult the pathname. "Is this a page with a hero?" is
+     answered in CSS via body:has(#hero), which the browser resolves on the first
+     style pass; usePathname() only exists after hydration, so on a slow connection
+     the homepage sat under an opaque cream bar until the JS bundle landed. */
+  const solid = scrolled || menuOpen;
   const count = cartCount(items);
 
   return (
     <>
       <header
-        className={cn(
-          "fixed inset-x-0 top-0 z-50 transition-all duration-500",
-          solid ? "bg-surface/90 shadow-soft backdrop-blur-md" : "bg-gradient-to-b from-deep-950/50 to-transparent"
-        )}
+        data-solid={solid ? "true" : "false"}
+        className="site-header fixed inset-x-0 top-0 z-50 transition-all duration-500"
       >
         <div className="container-page flex h-[4.5rem] items-center justify-between gap-2 sm:gap-4">
           <Link href="/" aria-label="Madhura Naturals home" className="min-w-0">
-            <Logo light={!solid} className="scale-[0.78] origin-left sm:scale-100" />
+            <Logo className="scale-[0.78] origin-left sm:scale-100" />
           </Link>
           <nav className="hidden items-center gap-7 lg:flex" aria-label="Main">
             {nav.map((n) => (
               <Link
                 key={n.label}
                 href={n.href}
-                className={cn(
-                  "text-sm font-medium tracking-wide transition-colors",
-                  solid ? "text-bark hover:text-forest-800" : "text-ivory/90 hover:text-ivory"
-                )}
+                className="hdr-link text-sm font-medium tracking-wide transition-colors"
               >
                 {n.label}
               </Link>
@@ -190,7 +187,7 @@ export function Header() {
           </nav>
           {/* phones keep only search + menu — theme moves to a bottom-left FAB, and
               wishlist/account/cart move into the mobile menu */}
-          <div className={cn("flex shrink-0 items-center gap-0.5 sm:gap-1", solid ? "text-forest-800" : "text-ivory")}>
+          <div className="hdr-icons flex shrink-0 items-center gap-0.5 sm:gap-1">
             <button onClick={() => setSearchOpen(true)} aria-label="Search" className="rounded-full p-2 transition hover:bg-deep-900/10 sm:p-2.5">
               <Search className="h-5 w-5" />
             </button>

@@ -31,11 +31,11 @@ export function LotusMark({ className }: { className?: string }) {
 
 export function Logo({ className, light = false }: { className?: string; light?: boolean }) {
   return (
-    <span className={cn("inline-flex items-center gap-2.5", light ? "text-ivory" : "text-forest-900", className)}>
+    <span className={cn("logo-lockup inline-flex items-center gap-2.5", light ? "text-ivory" : "text-forest-900", className)}>
       <LotusMark className="h-9 w-9 shrink-0" />
       <span className="leading-none">
         <span className="block font-display text-xl font-semibold tracking-[0.2em]">MADHURA</span>
-        <span className={cn("mt-1 block text-[0.58rem] font-medium tracking-[0.52em]", light ? "text-ivory/80" : "text-bark/70")}>
+        <span className={cn("logo-sub mt-1 block text-[0.58rem] font-medium tracking-[0.52em]", light ? "text-ivory/80" : "text-bark/70")}>
           NATURALS
         </span>
       </span>

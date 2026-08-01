@@ -194,6 +194,42 @@ body {
     opacity: 1;
   }
 }
+/* Header colouring lives here rather than in the component so the very first paint
+   is correct with zero JavaScript. It used to branch on usePathname(), which is
+   only meaningful after React hydrates — on a slow connection that left an opaque
+   cream bar sitting over the hero video for as long as the bundle took to arrive,
+   then popped to transparent. :has(#hero) is resolved during the first style pass.
+   The component still owns the scrolled/menu state via [data-solid]. */
+.site-header {
+  @apply bg-surface/90 shadow-soft backdrop-blur-md;
+}
+.site-header .hdr-link {
+  @apply text-bark;
+}
+.site-header .hdr-link:hover {
+  @apply text-forest-800;
+}
+.site-header .hdr-icons {
+  @apply text-forest-800;
+}
+
+body:has(#hero) .site-header[data-solid="false"] {
+  @apply bg-gradient-to-b from-deep-950/50 to-transparent shadow-none backdrop-blur-none;
+}
+body:has(#hero) .site-header[data-solid="false"] .hdr-link {
+  @apply text-ivory/90;
+}
+body:has(#hero) .site-header[data-solid="false"] .hdr-link:hover {
+  @apply text-ivory;
+}
+body:has(#hero) .site-header[data-solid="false"] .hdr-icons,
+body:has(#hero) .site-header[data-solid="false"] .logo-lockup {
+  @apply text-ivory;
+}
+body:has(#hero) .site-header[data-solid="false"] .logo-sub {
+  @apply text-ivory/80;
+}
+
 .page-enter {
   animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }

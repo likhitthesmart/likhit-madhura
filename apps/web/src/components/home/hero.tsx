@@ -11,8 +11,10 @@ export function Hero() {
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "22%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
+  /* #hero is load-bearing: globals.css keys the header's transparent-over-video
+     styling off `body:has(#hero)`, so the browser gets it right on first paint. */
   return (
-    <section ref={ref} className="relative h-[100svh] min-h-[560px] overflow-hidden bg-deep-950" aria-label="Madhura Naturals">
+    <section id="hero" ref={ref} className="relative h-[100svh] min-h-[560px] overflow-hidden bg-deep-950" aria-label="Madhura Naturals">
       <motion.div style={reduce ? undefined : { y }} className="absolute inset-0">
         <video
           className="h-full w-full object-cover"
