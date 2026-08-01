@@ -131,7 +131,7 @@ export default function OrderDetailPage() {
         <Link href="/admin/orders" className={btnGhost}>
           <ArrowLeft className="h-4 w-4" /> Orders
         </Link>
-        <h2 className="font-display text-2xl font-semibold text-ivory">{order.orderNo}</h2>
+        <h2 className="font-display text-2xl font-semibold text-ink">{order.orderNo}</h2>
         <StatusBadge status={order.status} />
         <StatusBadge status={order.paymentStatus} />
         <button className={`${btnGhost} ml-auto`} onClick={() => window.print()}>
@@ -148,7 +148,7 @@ export default function OrderDetailPage() {
               <tr key={it.id ?? i} className={rowCls}>
                 <Td>
                   {it.name}
-                  {it.unit && <span className="ml-1 text-xs text-ivory/40">({it.unit})</span>}
+                  {it.unit && <span className="ml-1 text-xs text-bark/70">({it.unit})</span>}
                 </Td>
                 <Td className="tabular-nums">{it.qty}</Td>
                 <Td className="tabular-nums">{inr(it.price)}</Td>
@@ -158,30 +158,30 @@ export default function OrderDetailPage() {
           </Table>
           <div className="mt-4 ml-auto max-w-xs space-y-1.5 text-sm">
             {order.subtotal != null && (
-              <p className="flex justify-between text-ivory/60">
+              <p className="flex justify-between text-bark">
                 <span>Subtotal</span>
                 <span className="tabular-nums">{inr(order.subtotal)}</span>
               </p>
             )}
             {order.discount != null && order.discount > 0 && (
-              <p className="flex justify-between text-emerald-300">
+              <p className="flex justify-between text-emerald-700 dark:text-emerald-300">
                 <span>Discount</span>
                 <span className="tabular-nums">−{inr(order.discount)}</span>
               </p>
             )}
             {order.shippingFee != null && (
-              <p className="flex justify-between text-ivory/60">
+              <p className="flex justify-between text-bark">
                 <span>Shipping</span>
                 <span className="tabular-nums">{inr(order.shippingFee)}</span>
               </p>
             )}
             {order.tax != null && order.tax > 0 && (
-              <p className="flex justify-between text-ivory/60">
+              <p className="flex justify-between text-bark">
                 <span>Tax</span>
                 <span className="tabular-nums">{inr(order.tax)}</span>
               </p>
             )}
-            <p className="flex justify-between border-t border-white/10 pt-1.5 font-semibold text-ivory">
+            <p className="flex justify-between border-t border-sand pt-1.5 font-semibold text-ink">
               <span>Total</span>
               <span className="tabular-nums">{inr(order.total)}</span>
             </p>
@@ -190,11 +190,11 @@ export default function OrderDetailPage() {
 
         <div className="space-y-6">
           <Panel title="Customer">
-            <div className="space-y-1 text-sm text-ivory/70">
+            <div className="space-y-1 text-sm text-ink/75">
               <p>{order.email}</p>
               <p>{order.phone}</p>
               {addr && (
-                <address className="mt-3 border-t border-white/5 pt-3 not-italic leading-relaxed text-ivory/60">
+                <address className="mt-3 border-t border-sand pt-3 not-italic leading-relaxed text-bark">
                   {[addr.name, addr.line1, addr.line2, addr.landmark, [addr.city, addr.state].filter(Boolean).join(", "), addr.pincode]
                     .filter(Boolean)
                     .map((line, i) => (
@@ -205,7 +205,7 @@ export default function OrderDetailPage() {
                 </address>
               )}
               {order.giftNote && (
-                <p className="mt-3 rounded-lg border border-gold/20 bg-gold/5 p-2.5 text-xs text-gold/90">
+                <p className="mt-3 rounded-lg border border-gold/20 bg-gold/5 p-2.5 text-xs text-gold-dark dark:text-gold/90">
                   Gift note: {order.giftNote}
                 </p>
               )}
@@ -249,16 +249,16 @@ export default function OrderDetailPage() {
               <li key={i} className="flex gap-3 text-sm">
                 <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-gold/70" />
                 <div>
-                  <p className="text-ivory/80">
+                  <p className="text-ink/80">
                     {t.status && <StatusBadge status={t.status} />} {t.note && <span className="ml-1">{t.note}</span>}
                   </p>
-                  {t.at && <p className="text-xs text-ivory/40">{new Date(t.at).toLocaleString("en-IN")}</p>}
+                  {t.at && <p className="text-xs text-bark/70">{new Date(t.at).toLocaleString("en-IN")}</p>}
                 </div>
               </li>
             ))}
           </ol>
         ) : (
-          <p className="text-sm text-ivory/40">No timeline entries.</p>
+          <p className="text-sm text-bark/70">No timeline entries.</p>
         )}
       </Panel>
 

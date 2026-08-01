@@ -49,15 +49,15 @@ function AuditLogs() {
         <Table head={["Action", "Entity", "By", "When"]}>
           {data.logs.map((l) => (
             <tr key={l.id} className={rowCls}>
-              <Td className="font-medium text-sage">{l.action}</Td>
+              <Td className="font-medium text-forest-600">{l.action}</Td>
               <Td>
-                {l.entity} <span className="font-mono text-xs text-ivory/40">{l.entityId}</span>
+                {l.entity} <span className="font-mono text-xs text-bark/70">{l.entityId}</span>
               </Td>
               <Td>
                 <p>{l.user.name}</p>
-                <p className="text-xs text-ivory/40">{l.user.email}</p>
+                <p className="text-xs text-bark/70">{l.user.email}</p>
               </Td>
-              <Td className="text-ivory/50">{new Date(l.at).toLocaleString("en-IN")}</Td>
+              <Td className="text-bark/80">{new Date(l.at).toLocaleString("en-IN")}</Td>
             </tr>
           ))}
         </Table>

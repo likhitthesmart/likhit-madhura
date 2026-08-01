@@ -74,21 +74,21 @@ export default function ReviewsPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="flex items-center gap-0.5">
                       {Array.from({ length: 5 }, (_, i) => (
-                        <Star key={i} className={cn("h-3.5 w-3.5", i < r.rating ? "fill-gold text-gold" : "text-white/15")} />
+                        <Star key={i} className={cn("h-3.5 w-3.5", i < r.rating ? "fill-gold text-gold" : "text-sand-dark")} />
                       ))}
                     </span>
-                    {r.title && <span className="font-medium text-ivory">{r.title}</span>}
+                    {r.title && <span className="font-medium text-ink">{r.title}</span>}
                     {r.verified && <StatusBadge status="VERIFIED" />}
                   </div>
-                  <p className="mt-2 text-sm leading-relaxed text-ivory/70">{r.body}</p>
-                  <p className="mt-2 text-xs text-ivory/40">
-                    {r.user.name} ({r.user.email}) on <span className="text-sage">{r.product.name}</span> · {dateLong(r.createdAt)}
+                  <p className="mt-2 text-sm leading-relaxed text-ink/75">{r.body}</p>
+                  <p className="mt-2 text-xs text-bark/70">
+                    {r.user.name} ({r.user.email}) on <span className="text-forest-600">{r.product.name}</span> · {dateLong(r.createdAt)}
                   </p>
                 </div>
                 <div className="flex shrink-0 gap-2">
                   {status !== "APPROVED" && (
                     <button
-                      className="rounded-lg border border-emerald-500/30 px-3 py-1.5 text-sm text-emerald-300 transition-colors hover:bg-emerald-500/10"
+                      className="rounded-lg border border-emerald-500/30 px-3 py-1.5 text-sm text-emerald-700 dark:text-emerald-300 transition-colors hover:bg-emerald-500/10"
                       onClick={() => void moderate(r.id, "APPROVED")}
                     >
                       Approve
@@ -96,7 +96,7 @@ export default function ReviewsPage() {
                   )}
                   {status !== "REJECTED" && (
                     <button
-                      className="rounded-lg border border-rose-500/30 px-3 py-1.5 text-sm text-rose-300 transition-colors hover:bg-rose-500/10"
+                      className="rounded-lg border border-rose-500/30 px-3 py-1.5 text-sm text-rose-700 dark:text-rose-300 transition-colors hover:bg-rose-500/10"
                       onClick={() => void moderate(r.id, "REJECTED")}
                     >
                       Reject

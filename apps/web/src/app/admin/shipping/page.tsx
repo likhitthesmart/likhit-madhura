@@ -129,16 +129,16 @@ export default function ShippingPage() {
             {data.zones.map((z) => (
               <tr key={z.id} className={rowCls}>
                 <Td>
-                  <button className="font-medium text-ivory transition-colors hover:text-gold" onClick={() => openEditor(z)}>
+                  <button className="font-medium text-ink transition-colors hover:text-gold" onClick={() => openEditor(z)}>
                     {z.name}
                   </button>
                 </Td>
                 <Td className="max-w-[240px]">
-                  <p className="truncate text-ivory/60">{z.pincodePrefixes.join(", ")}</p>
+                  <p className="truncate text-bark">{z.pincodePrefixes.join(", ")}</p>
                 </Td>
                 <Td className="tabular-nums">{inr(z.fee)}</Td>
-                <Td className="tabular-nums text-ivory/60">{z.freeAbove != null ? inr(z.freeAbove) : "—"}</Td>
-                <Td className="text-ivory/60">
+                <Td className="tabular-nums text-bark">{z.freeAbove != null ? inr(z.freeAbove) : "—"}</Td>
+                <Td className="text-bark">
                   {z.etaDaysMin}–{z.etaDaysMax} days
                 </Td>
                 <Td>
@@ -185,7 +185,7 @@ export default function ShippingPage() {
               </Field>
             </div>
             <Check label="Active" checked={form.active} onChange={(v) => up({ active: v })} />
-            <div className="flex justify-end gap-2 border-t border-white/5 pt-4">
+            <div className="flex justify-end gap-2 border-t border-sand pt-4">
               <button type="button" className={btnGhost} onClick={() => setEditing(null)}>
                 Cancel
               </button>

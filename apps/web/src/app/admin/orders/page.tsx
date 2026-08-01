@@ -100,9 +100,9 @@ export default function OrdersPage() {
             { label: "Paid", value: String(data.summary.paidOrders) },
             { label: "Revenue", value: inr(data.summary.revenue) },
           ].map((s) => (
-            <div key={s.label} className="rounded-xl border border-white/10 bg-black/20 px-4 py-3">
-              <p className="text-[0.65rem] uppercase tracking-widest text-ivory/40">{s.label}</p>
-              <p className="mt-1 text-lg font-semibold text-ivory">{s.value}</p>
+            <div key={s.label} className="rounded-xl border border-sand bg-black/20 px-4 py-3">
+              <p className="text-[0.65rem] uppercase tracking-widest text-bark/70">{s.label}</p>
+              <p className="mt-1 text-lg font-semibold text-ink">{s.value}</p>
             </div>
           ))}
         </div>
@@ -152,10 +152,10 @@ export default function OrdersPage() {
                   <Td className="font-medium text-gold">{o.orderNo}</Td>
                   <Td>
                     <p>{o.email}</p>
-                    <p className="text-xs text-ivory/40">{o.phone}</p>
+                    <p className="text-xs text-bark/70">{o.phone}</p>
                   </Td>
                   <Td className="max-w-[220px]">
-                    <p className="truncate text-ivory/60">
+                    <p className="truncate text-bark">
                       {o.items.map((i) => `${i.name} ×${i.qty}`).join(", ")}
                     </p>
                   </Td>
@@ -166,7 +166,7 @@ export default function OrdersPage() {
                   <Td>
                     <StatusBadge status={o.paymentStatus} />
                   </Td>
-                  <Td className="text-ivory/50">{new Date(o.createdAt).toLocaleString("en-IN")}</Td>
+                  <Td className="text-bark/80">{new Date(o.createdAt).toLocaleString("en-IN")}</Td>
                 </tr>
               ))}
             </Table>

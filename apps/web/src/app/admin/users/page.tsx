@@ -106,7 +106,7 @@ export default function UsersPage() {
             <Table head={["Customer", "Contact", "Orders", "Role", "Status", "Last login", "Joined"]}>
               {data.users.map((u) => (
                 <tr key={u.id} className={rowCls}>
-                  <Td className="font-medium text-ivory">
+                  <Td className="font-medium text-ink">
                     <button
                       type="button"
                       onClick={() => setOpenUser(u.id)}
@@ -116,8 +116,8 @@ export default function UsersPage() {
                     </button>
                   </Td>
                   <Td>
-                    <p className="text-ivory/70">{u.email}</p>
-                    {u.phone && <p className="text-xs text-ivory/40">{u.phone}</p>}
+                    <p className="text-ink/75">{u.email}</p>
+                    {u.phone && <p className="text-xs text-bark/70">{u.phone}</p>}
                   </Td>
                   <Td className="tabular-nums">{u._count.orders}</Td>
                   <Td>
@@ -151,8 +151,8 @@ export default function UsersPage() {
                     )}
                     {isAdmin && u.blocked && <StatusBadge status="BLOCKED" />}
                   </Td>
-                  <Td className="text-ivory/50">{u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleString("en-IN") : "—"}</Td>
-                  <Td className="text-ivory/50">{new Date(u.createdAt).toLocaleDateString("en-IN")}</Td>
+                  <Td className="text-bark/80">{u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleString("en-IN") : "—"}</Td>
+                  <Td className="text-bark/80">{new Date(u.createdAt).toLocaleDateString("en-IN")}</Td>
                 </tr>
               ))}
             </Table>

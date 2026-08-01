@@ -104,15 +104,15 @@ export default function AnalyticsPage() {
               <Table head={["Type", "Path", "Device", "Browser", "Session", "IP", "When"]}>
                 {data.recent.map((e, i) => (
                   <tr key={i} className={rowCls}>
-                    <Td className="text-sage">{e.type}</Td>
+                    <Td className="text-forest-600">{e.type}</Td>
                     <Td className="max-w-[240px]">
                       <p className="truncate">{e.path}</p>
                     </Td>
-                    <Td className="text-ivory/60">{e.device}</Td>
-                    <Td className="text-ivory/60">{e.browser}</Td>
-                    <Td className="font-mono text-xs text-ivory/40">{e.sessionId.slice(0, 8)}</Td>
-                    <Td className="font-mono text-xs text-ivory/40">{e.ip}</Td>
-                    <Td className="text-ivory/50">{new Date(e.createdAt).toLocaleString("en-IN")}</Td>
+                    <Td className="text-bark">{e.device}</Td>
+                    <Td className="text-bark">{e.browser}</Td>
+                    <Td className="font-mono text-xs text-bark/70">{e.sessionId.slice(0, 8)}</Td>
+                    <Td className="font-mono text-xs text-bark/70">{e.ip}</Td>
+                    <Td className="text-bark/80">{new Date(e.createdAt).toLocaleString("en-IN")}</Td>
                   </tr>
                 ))}
               </Table>

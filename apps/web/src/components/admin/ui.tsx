@@ -86,8 +86,8 @@ export function Note({ kind = "error", children }: { kind?: "error" | "ok"; chil
       className={cn(
         "rounded-lg border px-3 py-2 text-sm",
         kind === "error"
-          ? "border-rose-500/30 bg-rose-500/10 text-rose-300"
-          : "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+          ? "border-rose-500/30 bg-rose-500/10 text-rose-700 dark:text-rose-300"
+          : "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
       )}
     >
       {children}
@@ -96,7 +96,7 @@ export function Note({ kind = "error", children }: { kind?: "error" | "ok"; chil
 }
 
 export function EmptyState({ label }: { label: string }) {
-  return <p className="py-10 text-center text-sm text-ivory/40">{label}</p>;
+  return <p className="py-10 text-center text-sm text-bark/70">{label}</p>;
 }
 
 export function Panel({
@@ -111,10 +111,10 @@ export function Panel({
   className?: string;
 }) {
   return (
-    <section className={cn("rounded-2xl border border-white/5 bg-[#1c2216] p-5 shadow-soft", className)}>
+    <section className={cn("rounded-2xl border border-sand bg-surface p-5 shadow-soft", className)}>
       {(title || actions) && (
         <div className="mb-4 flex items-center justify-between gap-3">
-          {title && <h2 className="font-display text-lg font-semibold text-ivory">{title}</h2>}
+          {title && <h2 className="font-display text-lg font-semibold text-ink">{title}</h2>}
           {actions && <div className="flex items-center gap-2">{actions}</div>}
         </div>
       )}
@@ -123,12 +123,26 @@ export function Panel({
   );
 }
 
-export function StatCard({ label, value, hint }: { label: string; value: ReactNode; hint?: string }) {
+export function StatCard({
+  label,
+  value,
+  hint,
+  size = "md",
+}: {
+  label: string;
+  value: ReactNode;
+  hint?: string;
+  /** "lg" for the one or two figures a page is actually about; the rest stay "md" so
+   *  a wall of equal-weight tiles doesn't flatten the hierarchy. */
+  size?: "md" | "lg";
+}) {
+  const lg = size === "lg";
   return (
-    <div className="rounded-2xl border border-white/5 bg-[#1c2216] p-4 shadow-soft transition-colors hover:border-gold/20">
-      <p className="text-[11px] font-medium uppercase tracking-wider text-ivory/40">{label}</p>
-      <p className="mt-1.5 font-display text-2xl font-semibold text-ivory">{value}</p>
-      {hint && <p className="mt-0.5 text-xs text-sage">{hint}</p>}
+    <div className={cn("rounded-2xl border border-sand bg-surface shadow-soft transition-colors hover:border-gold/40", lg ? "p-5" : "p-4")}>
+      <p className="text-[11px] font-medium uppercase tracking-wider text-bark">{label}</p>
+      {/* tabular-nums so digits keep their columns as the numbers tick over */}
+      <p className={cn("mt-1.5 font-display font-semibold tabular-nums text-ink", lg ? "text-4xl" : "text-2xl")}>{value}</p>
+      {hint && <p className="mt-1 text-xs text-forest-600">{hint}</p>}
     </div>
   );
 }
@@ -140,7 +154,7 @@ export function Table({ head, children }: { head: ReactNode[]; children: ReactNo
     <div className="overflow-x-auto overscroll-x-contain">
       <table className="w-full min-w-max text-sm">
         <thead>
-          <tr className="border-b border-white/10 text-left text-[11px] uppercase tracking-wider text-ivory/40">
+          <tr className="border-b border-sand text-left text-[11px] uppercase tracking-wider text-bark/70">
             {head.map((h, i) => (
               <th key={i} className="px-3 py-2.5 font-medium">
                 {h}
@@ -148,24 +162,24 @@ export function Table({ head, children }: { head: ReactNode[]; children: ReactNo
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-white/5">{children}</tbody>
+        <tbody className="divide-y divide-sand">{children}</tbody>
       </table>
     </div>
   );
 }
 
 export function Td({ children, className }: { children?: ReactNode; className?: string }) {
-  return <td className={cn("px-3 py-2.5 align-middle text-ivory/80", className)}>{children}</td>;
+  return <td className={cn("px-3 py-2.5 align-middle text-ink/80", className)}>{children}</td>;
 }
 
-export const rowCls = "transition-colors hover:bg-white/[0.03]";
+export const rowCls = "transition-colors hover:bg-forest-50/70";
 
 /* ---------- buttons ---------- */
 
 export const btnPrimary =
   "inline-flex items-center gap-1.5 rounded-lg bg-gold px-3.5 py-2 text-sm font-semibold text-deep-950 transition-colors hover:bg-gold-light disabled:opacity-50";
 export const btnGhost =
-  "inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-sm text-ivory/70 transition-colors hover:border-gold/40 hover:text-ivory disabled:opacity-50";
+  "inline-flex items-center gap-1.5 rounded-lg border border-sand px-3 py-1.5 text-sm text-ink/75 transition-colors hover:border-gold/40 hover:text-ink disabled:opacity-50";
 
 export function ConfirmButton({
   onConfirm,
@@ -194,8 +208,8 @@ export function ConfirmButton({
       className={cn(
         "rounded-lg border px-2.5 py-1 text-xs transition-colors",
         armed
-          ? "border-rose-500/50 bg-rose-500/20 text-rose-200"
-          : "border-white/10 text-ivory/60 hover:border-rose-500/40 hover:text-rose-300",
+          ? "border-rose-500/50 bg-rose-500/20 text-rose-700 dark:text-rose-200"
+          : "border-sand text-bark hover:border-rose-500/40 hover:text-rose-600 dark:hover:text-rose-300",
         className
       )}
     >
@@ -251,18 +265,18 @@ export function Modal({
           under the pointer, and the title bar stays put on long content. */}
       <div
         className={cn(
-          "flex max-h-[calc(100vh-2rem)] w-full flex-col rounded-2xl border border-white/10 bg-[#1c2216] shadow-lift",
+          "flex max-h-[calc(100vh-2rem)] w-full flex-col rounded-2xl border border-sand bg-surface shadow-lift",
           wide ? "max-w-3xl" : "max-w-lg"
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex shrink-0 items-center justify-between border-b border-white/10 px-6 py-4">
-          <h2 className="font-display text-xl font-semibold text-ivory">{title}</h2>
+        <div className="flex shrink-0 items-center justify-between border-b border-sand px-6 py-4">
+          <h2 className="font-display text-xl font-semibold text-ink">{title}</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="rounded-lg p-1.5 text-ivory/50 transition-colors hover:bg-white/5 hover:text-ivory"
+            className="rounded-lg p-1.5 text-bark/80 transition-colors hover:bg-forest-50 hover:text-ink"
           >
             <X className="h-4 w-4" />
           </button>
@@ -302,13 +316,14 @@ export function DateRange({
     ["7 days", day(6), day()],
     ["30 days", day(29), day()],
   ];
-  // color-scheme:dark makes the native picker render dark instead of a white popup
-  const field = cn(inputCls, "w-auto [color-scheme:dark]");
+  // the native date popup follows color-scheme, so it has to track the app theme —
+  // hardcoding dark gave a black picker sitting on a cream page in light mode
+  const field = cn(inputCls, "w-auto [color-scheme:light] dark:[color-scheme:dark]");
 
   return (
     <div className="flex flex-wrap items-center gap-2">
       <input type="date" aria-label="From date" value={from} max={to || undefined} onChange={(e) => onChange(e.target.value, to)} className={field} />
-      <span className="text-ivory/30">→</span>
+      <span className="text-bark/50">→</span>
       <input type="date" aria-label="To date" value={to} min={from || undefined} onChange={(e) => onChange(from, e.target.value)} className={field} />
       {presets.map(([label, f, t]) => (
         <button
@@ -317,14 +332,14 @@ export function DateRange({
           onClick={() => onChange(f, t)}
           className={cn(
             "rounded-lg px-2.5 py-1.5 text-xs transition-colors",
-            active(f, t) ? "bg-gold/15 font-medium text-gold" : "text-ivory/50 hover:bg-white/5 hover:text-ivory"
+            active(f, t) ? "bg-gold/15 font-medium text-gold" : "text-bark/80 hover:bg-forest-50 hover:text-ink"
           )}
         >
           {label}
         </button>
       ))}
       {(from || to) && (
-        <button type="button" onClick={() => onChange("", "")} className="rounded-lg px-2.5 py-1.5 text-xs text-ivory/40 transition-colors hover:text-ivory">
+        <button type="button" onClick={() => onChange("", "")} className="rounded-lg px-2.5 py-1.5 text-xs text-bark/70 transition-colors hover:text-ink">
           Clear
         </button>
       )}
@@ -339,12 +354,12 @@ export const rangeQuery = (from: string, to: string) =>
 /* ---------- form controls ---------- */
 
 export const inputCls =
-  "w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-ivory placeholder:text-ivory/30 outline-none transition-colors focus:border-gold/50";
+  "w-full rounded-lg border border-sand bg-cream px-3 py-2 text-sm text-ink placeholder:text-bark/50 outline-none transition-colors focus:border-gold/50";
 
 export function Field({ label, children, className }: { label: string; children: ReactNode; className?: string }) {
   return (
     <label className={cn("block", className)}>
-      <span className="mb-1 block text-xs font-medium text-ivory/60">{label}</span>
+      <span className="mb-1 block text-xs font-medium text-bark">{label}</span>
       {children}
     </label>
   );
@@ -448,7 +463,7 @@ export function SearchInput({
         autoComplete="off"
       />
       {shown && (
-        <ul role="listbox" className="absolute z-20 mt-1 max-h-72 w-full overflow-y-auto rounded-lg border border-white/10 bg-[#1c2216] py-1 shadow-lift">
+        <ul role="listbox" className="absolute z-20 mt-1 max-h-72 w-full overflow-y-auto rounded-lg border border-sand bg-surface py-1 shadow-lift">
           {items.map((s, i) => (
             <li key={`${s.value}-${i}`} role="option" aria-selected={i === active}>
               <button
@@ -459,7 +474,7 @@ export function SearchInput({
                   pick(s.value);
                 }}
                 onMouseEnter={() => setActive(i)}
-                className={cn("block w-full truncate px-3 py-2 text-left text-sm text-ivory/80", i === active && "bg-white/10 text-ivory")}
+                className={cn("block w-full truncate px-3 py-2 text-left text-sm text-ink/80", i === active && "bg-forest-100 text-ink")}
               >
                 {s.label}
               </button>
@@ -472,7 +487,7 @@ export function SearchInput({
 }
 
 export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select {...props} className={cn(inputCls, "[&>option]:bg-[#1c2216]", props.className)} />;
+  return <select {...props} className={cn(inputCls, "[&>option]:bg-surface", props.className)} />;
 }
 
 export function Textarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
@@ -489,12 +504,12 @@ export function Check({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-ivory/70">
+    <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-ink/75">
       <input
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="h-4 w-4 rounded border-white/20 bg-black/30 accent-[#c9a24b]"
+        className="h-4 w-4 rounded border-sand bg-cream accent-gold"
       />
       {label}
     </label>
@@ -503,21 +518,31 @@ export function Check({
 
 /* ---------- status badge ---------- */
 
+/* Status hues sit outside the --c-* token system — they carry meaning, not brand — so
+   each needs an explicit light/dark pair: the 300-weights are legible on a dark card
+   and wash out on cream, the 700-weights the reverse. Written out in full rather than
+   built from a helper because Tailwind only generates classes it can see as literal
+   strings in the source; an interpolated `text-${hue}-300` would emit no CSS at all. */
+const AMBER = "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-300";
+const SKY = "border-sky-500/30 bg-sky-500/15 text-sky-700 dark:text-sky-300";
+const EMERALD = "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300";
+const ROSE = "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-300";
+
 const badgeColors: Record<string, string> = {
-  PENDING: "border-amber-500/30 bg-amber-500/15 text-amber-300",
-  PROCESSING: "border-sky-500/30 bg-sky-500/15 text-sky-300",
-  PACKED: "border-violet-500/30 bg-violet-500/15 text-violet-300",
-  SHIPPED: "border-indigo-500/30 bg-indigo-500/15 text-indigo-300",
-  DELIVERED: "border-emerald-500/30 bg-emerald-500/15 text-emerald-300",
-  CANCELLED: "border-rose-500/30 bg-rose-500/15 text-rose-300",
-  REFUNDED: "border-slate-500/30 bg-slate-500/15 text-slate-300",
-  PAID: "border-emerald-500/30 bg-emerald-500/15 text-emerald-300",
-  FAILED: "border-rose-500/30 bg-rose-500/15 text-rose-300",
-  APPROVED: "border-emerald-500/30 bg-emerald-500/15 text-emerald-300",
-  REJECTED: "border-rose-500/30 bg-rose-500/15 text-rose-300",
-  NEW: "border-amber-500/30 bg-amber-500/15 text-amber-300",
-  OPEN: "border-sky-500/30 bg-sky-500/15 text-sky-300",
-  RESOLVED: "border-emerald-500/30 bg-emerald-500/15 text-emerald-300",
+  PENDING: AMBER,
+  PROCESSING: SKY,
+  PACKED: "border-violet-500/30 bg-violet-500/15 text-violet-700 dark:text-violet-300",
+  SHIPPED: "border-indigo-500/30 bg-indigo-500/15 text-indigo-700 dark:text-indigo-300",
+  DELIVERED: EMERALD,
+  CANCELLED: ROSE,
+  REFUNDED: "border-slate-500/30 bg-slate-500/15 text-slate-700 dark:text-slate-300",
+  PAID: EMERALD,
+  FAILED: ROSE,
+  APPROVED: EMERALD,
+  REJECTED: ROSE,
+  NEW: AMBER,
+  OPEN: SKY,
+  RESOLVED: EMERALD,
 };
 
 export function StatusBadge({ status }: { status: string }) {
@@ -525,7 +550,7 @@ export function StatusBadge({ status }: { status: string }) {
     <span
       className={cn(
         "inline-block rounded-full border px-2 py-0.5 text-[11px] font-medium tracking-wide",
-        badgeColors[status] ?? "border-white/10 bg-white/5 text-ivory/60"
+        badgeColors[status] ?? "border-sand bg-forest-50 text-bark"
       )}
     >
       {status}
@@ -555,7 +580,7 @@ export function Tabs({
             "rounded-lg px-3 py-1.5 text-sm transition-colors",
             active === t.key
               ? "bg-gold/15 font-medium text-gold"
-              : "text-ivory/50 hover:bg-white/5 hover:text-ivory"
+              : "text-bark/80 hover:bg-forest-50 hover:text-ink"
           )}
         >
           {t.label}
@@ -577,7 +602,7 @@ export function Pagination({
 }) {
   if (pages <= 1) return null;
   return (
-    <div className="mt-4 flex items-center justify-between text-sm text-ivory/60">
+    <div className="mt-4 flex items-center justify-between text-sm text-bark">
       <button type="button" className={btnGhost} disabled={page <= 1} onClick={() => onPage(page - 1)}>
         Previous
       </button>
@@ -605,29 +630,54 @@ export function BarChart({
   const max = Math.max(1, ...data.map((d) => d.value));
   const bw = 100 / Math.max(1, data.length);
   if (!data.length) return <EmptyState label="No data yet" />;
+  const fmt = (v: number) => (format ? format(v) : v.toLocaleString("en-IN"));
+  const grid = [0, 0.25, 0.5, 0.75, 1]; // quarter lines to measure bar heights against
   return (
     <div className={className}>
-      <svg viewBox="0 0 100 42" preserveAspectRatio="none" className="h-44 w-full">
-        <line x1="0" y1="41" x2="100" y2="41" className="stroke-white/10" strokeWidth="0.4" />
-        {data.map((d, i) => {
-          const h = (d.value / max) * 38;
-          return (
-            <rect
-              key={i}
-              x={i * bw + bw * 0.15}
-              y={41 - h}
-              width={bw * 0.7}
-              height={Math.max(h, 0.4)}
-              className="fill-gold opacity-75 transition-opacity hover:opacity-100"
-            >
-              <title>{`${d.label} — ${format ? format(d.value) : d.value.toLocaleString("en-IN")}`}</title>
-            </rect>
-          );
-        })}
-      </svg>
-      <div className="mt-1 flex justify-between text-[10px] text-ivory/40">
-        <span>{data[0]?.label}</span>
-        <span>{data[data.length - 1]?.label}</span>
+      <div className="flex gap-2">
+        {/* Value axis lives outside the SVG: preserveAspectRatio="none" stretches the
+            viewBox horizontally to fit, which would smear any text drawn inside it. */}
+        <div className="flex h-44 shrink-0 flex-col justify-between text-right text-[10px] tabular-nums leading-none text-bark/70">
+          {[...grid].reverse().map((g) => (
+            <span key={g}>{fmt(Math.round(max * g))}</span>
+          ))}
+        </div>
+        <div className="w-full">
+          <svg viewBox="0 0 100 42" preserveAspectRatio="none" className="h-44 w-full">
+            {grid.map((g) => (
+            <line
+              key={g}
+              x1="0"
+              y1={41 - g * 38}
+              x2="100"
+              y2={41 - g * 38}
+                className={g === 0 ? "stroke-sand-dark" : "stroke-sand"}
+                strokeWidth={g === 0 ? 0.4 : 0.25}
+              />
+            ))}
+            {data.map((d, i) => {
+              const h = (d.value / max) * 38;
+              return (
+                <rect
+                  key={i}
+                  x={i * bw + bw * 0.18}
+                  y={41 - h}
+                  width={bw * 0.64}
+                  height={Math.max(h, 0.4)}
+                  className="fill-gold transition-opacity hover:opacity-70"
+                >
+                  <title>{`${d.label} — ${fmt(d.value)}`}</title>
+                </rect>
+              );
+            })}
+          </svg>
+          {/* inside the chart column so the ends line up with the first and last bar
+              rather than with the value axis */}
+          <div className="mt-1 flex justify-between text-[10px] text-bark/70">
+            <span>{data[0]?.label}</span>
+            <span>{data[data.length - 1]?.label}</span>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -648,9 +698,11 @@ export function Sparkline({ values, className }: { values: number[]; className?:
 /** Horizontal bar breakdown (traffic sources, devices, funnels…). */
 export function Bars({
   items,
-  color = "bg-sage/70",
+  color = "bg-forest-500",
 }: {
-  items: { label: string; value: number; hint?: string }[];
+  /** `color` on an item overrides the shared one — used by the order-status panel so
+   *  each status keeps the hue it has on its StatusBadge instead of eight identical bars. */
+  items: { label: string; value: number; hint?: string; color?: string }[];
   color?: string;
 }) {
   const max = Math.max(1, ...items.map((i) => i.value));
@@ -660,11 +712,14 @@ export function Bars({
       {items.map((it, i) => (
         <div key={i}>
           <div className="mb-1 flex justify-between gap-4 text-xs">
-            <span className="truncate text-ivory/70">{it.label}</span>
-            <span className="shrink-0 tabular-nums text-ivory/50">{it.hint ?? it.value.toLocaleString("en-IN")}</span>
+            <span className="truncate font-medium text-ink/80">{it.label}</span>
+            <span className="shrink-0 tabular-nums text-bark">{it.hint ?? it.value.toLocaleString("en-IN")}</span>
           </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
-            <div className={cn("h-full rounded-full transition-all duration-300", color)} style={{ width: `${(it.value / max) * 100}%` }} />
+          <div className="h-2 overflow-hidden rounded-full bg-sand">
+            <div
+              className={cn("h-full rounded-full transition-all duration-300", it.color ?? color)}
+              style={{ width: `${Math.max((it.value / max) * 100, 2)}%` }}
+            />
           </div>
         </div>
       ))}

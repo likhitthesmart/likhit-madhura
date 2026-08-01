@@ -115,14 +115,14 @@ export default function CategoriesPage() {
             {data.categories.map((c) => (
               <tr key={c.id} className={rowCls}>
                 <Td>
-                  <button className="font-medium text-ivory transition-colors hover:text-gold" onClick={() => openEditor(c)}>
+                  <button className="font-medium text-ink transition-colors hover:text-gold" onClick={() => openEditor(c)}>
                     {c.name}
                   </button>
-                  {c.description && <p className="max-w-xs truncate text-xs text-ivory/40">{c.description}</p>}
+                  {c.description && <p className="max-w-xs truncate text-xs text-bark/70">{c.description}</p>}
                 </Td>
-                <Td className="text-ivory/60">{c.slug}</Td>
+                <Td className="text-bark">{c.slug}</Td>
                 <Td className="tabular-nums">{c._count.products}</Td>
-                <Td className="tabular-nums text-ivory/50">{c.sortOrder}</Td>
+                <Td className="tabular-nums text-bark/80">{c.sortOrder}</Td>
                 <Td>
                   <StatusBadge status={c.active ? "ACTIVE" : "INACTIVE"} />
                 </Td>
@@ -166,7 +166,7 @@ export default function CategoriesPage() {
               </Field>
             </div>
             <Check label="Active" checked={form.active} onChange={(v) => up({ active: v })} />
-            <div className="flex justify-end gap-2 border-t border-white/5 pt-4">
+            <div className="flex justify-end gap-2 border-t border-sand pt-4">
               <button type="button" className={btnGhost} onClick={() => setEditing(null)}>
                 Cancel
               </button>

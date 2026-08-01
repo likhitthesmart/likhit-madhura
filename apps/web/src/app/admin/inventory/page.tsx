@@ -100,11 +100,11 @@ export default function InventoryPage() {
               const low = p.stock <= p.lowStockAlert;
               return [
                 <tr key={p.id} className={`${rowCls} ${low ? "bg-rose-500/[0.06]" : ""}`}>
-                  <Td className="font-medium text-ivory">{p.name}</Td>
-                  <Td className="text-ivory/60">{p.sku}</Td>
-                  <Td className="text-ivory/60">{p.unit}</Td>
-                  <Td className={low ? "font-semibold text-rose-300" : "tabular-nums"}>{p.stock}</Td>
-                  <Td className="tabular-nums text-ivory/50">{p.lowStockAlert}</Td>
+                  <Td className="font-medium text-ink">{p.name}</Td>
+                  <Td className="text-bark">{p.sku}</Td>
+                  <Td className="text-bark">{p.unit}</Td>
+                  <Td className={low ? "font-semibold text-rose-700 dark:text-rose-300" : "tabular-nums"}>{p.stock}</Td>
+                  <Td className="tabular-nums text-bark/80">{p.lowStockAlert}</Td>
                   <Td>
                     <StatusBadge status={p.active ? (low ? "LOW STOCK" : "ACTIVE") : "INACTIVE"} />
                   </Td>
@@ -124,7 +124,7 @@ export default function InventoryPage() {
                     <td colSpan={7} className="bg-black/20 px-3 py-3">
                       <form onSubmit={(e) => void applyAdjust(e, p.id)} className="flex flex-wrap items-end gap-3">
                         <label className="block">
-                          <span className="mb-1 block text-xs text-ivory/60">Delta (+ receive / − remove)</span>
+                          <span className="mb-1 block text-xs text-bark">Delta (+ receive / − remove)</span>
                           <Input
                             type="number"
                             required
@@ -135,13 +135,13 @@ export default function InventoryPage() {
                           />
                         </label>
                         <label className="block flex-1 min-w-[200px]">
-                          <span className="mb-1 block text-xs text-ivory/60">Reason</span>
+                          <span className="mb-1 block text-xs text-bark">Reason</span>
                           <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="New batch received / damage / audit…" />
                         </label>
                         <button className={btnPrimary} disabled={saving}>
                           {saving ? "Applying…" : "Apply"}
                         </button>
-                        {msg && <span className="text-sm text-rose-300">{msg}</span>}
+                        {msg && <span className="text-sm text-rose-700 dark:text-rose-300">{msg}</span>}
                       </form>
                     </td>
                   </tr>
@@ -165,9 +165,9 @@ export default function InventoryPage() {
               { label: "Received", value: `+${logs.data.summary.received}` },
               { label: "Movements", value: String(logs.data.summary.movements) },
             ].map((s) => (
-              <div key={s.label} className="rounded-xl border border-white/10 bg-black/20 px-4 py-3">
-                <p className="text-[0.65rem] uppercase tracking-widest text-ivory/40">{s.label}</p>
-                <p className="mt-1 text-lg font-semibold text-ivory">{s.value}</p>
+              <div key={s.label} className="rounded-xl border border-sand bg-black/20 px-4 py-3">
+                <p className="text-[0.65rem] uppercase tracking-widest text-bark/70">{s.label}</p>
+                <p className="mt-1 text-lg font-semibold text-ink">{s.value}</p>
               </div>
             ))}
           </div>
@@ -180,12 +180,12 @@ export default function InventoryPage() {
             {logs.data.logs.map((l) => (
               <tr key={l.id} className={rowCls}>
                 <Td>{l.product.name}</Td>
-                <Td className="text-ivory/60">{l.product.sku}</Td>
-                <Td className={l.delta >= 0 ? "font-medium text-emerald-300" : "font-medium text-rose-300"}>
+                <Td className="text-bark">{l.product.sku}</Td>
+                <Td className={l.delta >= 0 ? "font-medium text-emerald-700 dark:text-emerald-300" : "font-medium text-rose-700 dark:text-rose-300"}>
                   {l.delta >= 0 ? `+${l.delta}` : l.delta}
                 </Td>
-                <Td className="text-ivory/60">{l.reason}</Td>
-                <Td className="text-ivory/50">{new Date(l.at).toLocaleString("en-IN")}</Td>
+                <Td className="text-bark">{l.reason}</Td>
+                <Td className="text-bark/80">{new Date(l.at).toLocaleString("en-IN")}</Td>
               </tr>
             ))}
           </Table>

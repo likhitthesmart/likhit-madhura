@@ -92,13 +92,13 @@ function AnalyticsModal({ coupon, onClose }: { coupon: Coupon; onClose: () => vo
       ) : data ? (
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3 text-sm">
-            <div className="rounded-lg border border-white/5 bg-black/20 p-3">
-              <p className="text-xs uppercase tracking-wider text-ivory/40">Total uses</p>
-              <p className="mt-1 font-display text-xl text-ivory">{data.uses}</p>
+            <div className="rounded-lg border border-sand bg-black/20 p-3">
+              <p className="text-xs uppercase tracking-wider text-bark/70">Total uses</p>
+              <p className="mt-1 font-display text-xl text-ink">{data.uses}</p>
             </div>
-            <div className="rounded-lg border border-white/5 bg-black/20 p-3">
-              <p className="text-xs uppercase tracking-wider text-ivory/40">Total discount given</p>
-              <p className="mt-1 font-display text-xl text-ivory">{inr(data.totalDiscount)}</p>
+            <div className="rounded-lg border border-sand bg-black/20 p-3">
+              <p className="text-xs uppercase tracking-wider text-bark/70">Total discount given</p>
+              <p className="mt-1 font-display text-xl text-ink">{inr(data.totalDiscount)}</p>
             </div>
           </div>
           {data.redemptions.length ? (
@@ -107,8 +107,8 @@ function AnalyticsModal({ coupon, onClose }: { coupon: Coupon; onClose: () => vo
                 <tr key={r.id} className={rowCls}>
                   <Td className="text-gold">{r.order.orderNo}</Td>
                   <Td className="tabular-nums">{inr(r.order.total)}</Td>
-                  <Td className="tabular-nums text-emerald-300">−{inr(r.amount)}</Td>
-                  <Td className="text-ivory/50">{new Date(r.at).toLocaleString("en-IN")}</Td>
+                  <Td className="tabular-nums text-emerald-700 dark:text-emerald-300">−{inr(r.amount)}</Td>
+                  <Td className="text-bark/80">{new Date(r.at).toLocaleString("en-IN")}</Td>
                 </tr>
               ))}
             </Table>
@@ -220,22 +220,22 @@ export default function CouponsPage() {
                   <button className="font-mono font-semibold tracking-wide text-gold hover:underline" onClick={() => openEditor(c)}>
                     {c.code}
                   </button>
-                  {c.description && <p className="max-w-[200px] truncate text-xs text-ivory/40">{c.description}</p>}
+                  {c.description && <p className="max-w-[200px] truncate text-xs text-bark/70">{c.description}</p>}
                 </Td>
                 <Td>
                   {c.type === "PERCENT" ? `${c.value}%` : inr(c.value)}
-                  {c.maxDiscount != null && <span className="text-xs text-ivory/40"> (max {inr(c.maxDiscount)})</span>}
+                  {c.maxDiscount != null && <span className="text-xs text-bark/70"> (max {inr(c.maxDiscount)})</span>}
                 </Td>
-                <Td className="text-ivory/60">{c.minCart != null ? inr(c.minCart) : "—"}</Td>
-                <Td className="text-xs text-ivory/50">
+                <Td className="text-bark">{c.minCart != null ? inr(c.minCart) : "—"}</Td>
+                <Td className="text-xs text-bark/80">
                   {c.startsAt ? new Date(c.startsAt).toLocaleDateString("en-IN") : "…"} →{" "}
                   {c.endsAt ? new Date(c.endsAt).toLocaleDateString("en-IN") : "…"}
                 </Td>
                 <Td className="tabular-nums">
                   {c.usedCount}
-                  {c.usageLimit != null && <span className="text-ivory/40">/{c.usageLimit}</span>}
+                  {c.usageLimit != null && <span className="text-bark/70">/{c.usageLimit}</span>}
                 </Td>
-                <Td className="space-x-1 text-[10px] uppercase tracking-wider text-sage">
+                <Td className="space-x-1 text-[10px] uppercase tracking-wider text-forest-600">
                   {c.autoApply && <span>auto</span>}
                   {c.stackable && <span>stack</span>}
                 </Td>
@@ -313,7 +313,7 @@ export default function CouponsPage() {
               <Check label="Auto apply" checked={form.autoApply} onChange={(v) => up({ autoApply: v })} />
               <Check label="Stackable" checked={form.stackable} onChange={(v) => up({ stackable: v })} />
             </div>
-            <div className="flex justify-end gap-2 border-t border-white/5 pt-4">
+            <div className="flex justify-end gap-2 border-t border-sand pt-4">
               <button type="button" className={btnGhost} onClick={() => setEditing(null)}>
                 Cancel
               </button>

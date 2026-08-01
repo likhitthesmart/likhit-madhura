@@ -81,25 +81,25 @@ function EnquiriesTab() {
         {loading ? (
           <PageLoader />
         ) : data?.enquiries.length ? (
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-sand">
             {data.enquiries.map((e) => (
               <div key={e.id} className="py-3">
                 <button
                   className="flex w-full flex-wrap items-center gap-3 text-left"
                   onClick={() => setExpanded(expanded === e.id ? null : e.id)}
                 >
-                  <span className="font-medium text-ivory">{e.name}</span>
-                  <span className="text-sm text-ivory/50">{e.subject ?? e.message.slice(0, 60)}</span>
+                  <span className="font-medium text-ink">{e.name}</span>
+                  <span className="text-sm text-bark/80">{e.subject ?? e.message.slice(0, 60)}</span>
                   <span className="ml-auto flex items-center gap-2">
                     <StatusBadge status={e.source} />
                     <StatusBadge status={e.status} />
-                    <span className="text-xs text-ivory/40">{new Date(e.createdAt).toLocaleDateString("en-IN")}</span>
+                    <span className="text-xs text-bark/70">{new Date(e.createdAt).toLocaleDateString("en-IN")}</span>
                   </span>
                 </button>
                 {expanded === e.id && (
-                  <div className="mt-3 rounded-xl border border-white/5 bg-black/20 p-4">
-                    <p className="whitespace-pre-wrap text-sm text-ivory/75">{e.message}</p>
-                    <p className="mt-3 text-xs text-ivory/40">
+                  <div className="mt-3 rounded-xl border border-sand bg-black/20 p-4">
+                    <p className="whitespace-pre-wrap text-sm text-ink/75">{e.message}</p>
+                    <p className="mt-3 text-xs text-bark/70">
                       {e.email}
                       {e.phone && ` · ${e.phone}`} · {new Date(e.createdAt).toLocaleString("en-IN")}
                     </p>
@@ -111,7 +111,7 @@ function EnquiriesTab() {
                       )}
                       {e.status !== "RESOLVED" && (
                         <button
-                          className="rounded-lg border border-emerald-500/30 px-3 py-1.5 text-sm text-emerald-300 transition-colors hover:bg-emerald-500/10"
+                          className="rounded-lg border border-emerald-500/30 px-3 py-1.5 text-sm text-emerald-700 dark:text-emerald-300 transition-colors hover:bg-emerald-500/10"
                           onClick={() => void setEnquiryStatus(e.id, "RESOLVED")}
                         >
                           Mark resolved
@@ -167,7 +167,7 @@ function SubscribersTab() {
                 <Td>
                   <StatusBadge status={s.active ? "ACTIVE" : "UNSUBSCRIBED"} />
                 </Td>
-                <Td className="text-ivory/50">{new Date(s.createdAt).toLocaleDateString("en-IN")}</Td>
+                <Td className="text-bark/80">{new Date(s.createdAt).toLocaleDateString("en-IN")}</Td>
               </tr>
             ))}
           </Table>

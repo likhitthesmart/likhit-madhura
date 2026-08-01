@@ -135,13 +135,13 @@ function BlogTab() {
           {data.posts.map((p) => (
             <tr key={p.id} className={rowCls}>
               <Td>
-                <button className="text-left font-medium text-ivory transition-colors hover:text-gold" onClick={() => openEditor(p)}>
+                <button className="text-left font-medium text-ink transition-colors hover:text-gold" onClick={() => openEditor(p)}>
                   {p.title}
                 </button>
-                <p className="text-xs text-ivory/40">/{p.slug}</p>
+                <p className="text-xs text-bark/70">/{p.slug}</p>
               </Td>
-              <Td className="text-ivory/60">{p.category}</Td>
-              <Td className="text-ivory/60">{p.authorName}</Td>
+              <Td className="text-bark">{p.category}</Td>
+              <Td className="text-bark">{p.authorName}</Td>
               <Td>
                 <StatusBadge status={p.published ? "PUBLISHED" : "DRAFT"} />
               </Td>
@@ -199,7 +199,7 @@ function BlogTab() {
               </Field>
             </div>
             <Check label="Published" checked={form.published} onChange={(v) => up({ published: v })} />
-            <div className="flex justify-end gap-2 border-t border-white/5 pt-4">
+            <div className="flex justify-end gap-2 border-t border-sand pt-4">
               <button type="button" className={btnGhost} onClick={() => setEditing(null)}>
                 Cancel
               </button>
@@ -250,12 +250,12 @@ function CommentsTab() {
       ) : data?.comments.length ? (
         <div className="space-y-3">
           {data.comments.map((c) => (
-            <div key={c.id} className="rounded-xl border border-white/5 bg-black/20 p-4">
+            <div key={c.id} className="rounded-xl border border-sand bg-black/20 p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-sm text-ivory/80">{c.body}</p>
-                  <p className="mt-2 text-xs text-ivory/40">
-                    {c.name} ({c.email}) on <span className="text-sage">{c.post.title}</span>
+                  <p className="text-sm text-ink/80">{c.body}</p>
+                  <p className="mt-2 text-xs text-bark/70">
+                    {c.name} ({c.email}) on <span className="text-forest-600">{c.post.title}</span>
                     {c.approved != null && (
                       <span className="ml-2">
                         <StatusBadge status={c.approved ? "APPROVED" : "PENDING"} />
@@ -265,13 +265,13 @@ function CommentsTab() {
                 </div>
                 <div className="flex shrink-0 gap-2">
                   <button
-                    className="rounded-lg border border-emerald-500/30 px-3 py-1.5 text-sm text-emerald-300 transition-colors hover:bg-emerald-500/10"
+                    className="rounded-lg border border-emerald-500/30 px-3 py-1.5 text-sm text-emerald-700 dark:text-emerald-300 transition-colors hover:bg-emerald-500/10"
                     onClick={() => void moderate(c.id, true)}
                   >
                     Approve
                   </button>
                   <button
-                    className="rounded-lg border border-rose-500/30 px-3 py-1.5 text-sm text-rose-300 transition-colors hover:bg-rose-500/10"
+                    className="rounded-lg border border-rose-500/30 px-3 py-1.5 text-sm text-rose-700 dark:text-rose-300 transition-colors hover:bg-rose-500/10"
                     onClick={() => void moderate(c.id, false)}
                   >
                     Reject
@@ -362,13 +362,13 @@ function FaqsTab() {
           {data.faqs.map((f) => (
             <tr key={f.id} className={rowCls}>
               <Td>
-                <button className="text-left font-medium text-ivory transition-colors hover:text-gold" onClick={() => openEditor(f)}>
+                <button className="text-left font-medium text-ink transition-colors hover:text-gold" onClick={() => openEditor(f)}>
                   {f.question}
                 </button>
-                <p className="max-w-md truncate text-xs text-ivory/40">{f.answer}</p>
+                <p className="max-w-md truncate text-xs text-bark/70">{f.answer}</p>
               </Td>
-              <Td className="text-ivory/60">{f.category}</Td>
-              <Td className="tabular-nums text-ivory/50">{f.sortOrder}</Td>
+              <Td className="text-bark">{f.category}</Td>
+              <Td className="tabular-nums text-bark/80">{f.sortOrder}</Td>
               <Td>
                 <StatusBadge status={f.active ? "ACTIVE" : "INACTIVE"} />
               </Td>
@@ -406,7 +406,7 @@ function FaqsTab() {
               </Field>
             </div>
             <Check label="Active" checked={form.active} onChange={(v) => up({ active: v })} />
-            <div className="flex justify-end gap-2 border-t border-white/5 pt-4">
+            <div className="flex justify-end gap-2 border-t border-sand pt-4">
               <button type="button" className={btnGhost} onClick={() => setEditing(null)}>
                 Cancel
               </button>
@@ -503,11 +503,11 @@ function TestimonialsTab() {
           {data.testimonials.map((t) => (
             <tr key={t.id} className={rowCls}>
               <Td>
-                <p className="font-medium text-ivory">{t.name}</p>
-                {t.location && <p className="text-xs text-ivory/40">{t.location}</p>}
+                <p className="font-medium text-ink">{t.name}</p>
+                {t.location && <p className="text-xs text-bark/70">{t.location}</p>}
               </Td>
               <Td className="max-w-sm">
-                <p className="truncate text-ivory/60">{t.quote}</p>
+                <p className="truncate text-bark">{t.quote}</p>
               </Td>
               <Td className="text-gold">{"★".repeat(t.rating)}</Td>
               <Td>
@@ -552,7 +552,7 @@ function TestimonialsTab() {
               </Field>
             </div>
             <Check label="Active" checked={form.active} onChange={(v) => up({ active: v })} />
-            <div className="flex justify-end gap-2 border-t border-white/5 pt-4">
+            <div className="flex justify-end gap-2 border-t border-sand pt-4">
               <button type="button" className={btnGhost} onClick={() => setEditing(null)}>
                 Cancel
               </button>

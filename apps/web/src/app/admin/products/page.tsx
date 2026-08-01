@@ -208,16 +208,16 @@ export default function ProductsPage() {
               {data.items.map((p) => (
                 <tr key={p.id} className={rowCls}>
                   <Td>
-                    <button className="text-left font-medium text-ivory transition-colors hover:text-gold" onClick={() => openEditor(p)}>
+                    <button className="text-left font-medium text-ink transition-colors hover:text-gold" onClick={() => openEditor(p)}>
                       {p.name}
                     </button>
-                    <p className="text-xs text-ivory/40">{p.unit}</p>
+                    <p className="text-xs text-bark/70">{p.unit}</p>
                   </Td>
-                  <Td className="text-ivory/60">{p.category?.name ?? "—"}</Td>
-                  <Td className="text-ivory/60">{p.sku}</Td>
+                  <Td className="text-bark">{p.category?.name ?? "—"}</Td>
+                  <Td className="text-bark">{p.sku}</Td>
                   <Td className="tabular-nums">{inr(p.price)}</Td>
-                  <Td className="tabular-nums text-ivory/50">{inr(p.mrp)}</Td>
-                  <Td className={p.stock <= p.lowStockAlert ? "font-medium text-rose-300" : "tabular-nums"}>{p.stock}</Td>
+                  <Td className="tabular-nums text-bark/80">{inr(p.mrp)}</Td>
+                  <Td className={p.stock <= p.lowStockAlert ? "font-medium text-rose-700 dark:text-rose-300" : "tabular-nums"}>{p.stock}</Td>
                   <Td>
                     <StatusBadge status={p.active ? "ACTIVE" : "INACTIVE"} />
                   </Td>
@@ -321,7 +321,7 @@ export default function ProductsPage() {
               <Check label="Featured" checked={form.featured} onChange={(v) => up({ featured: v })} />
               <Check label="Organic certified" checked={form.organicCertified} onChange={(v) => up({ organicCertified: v })} />
             </div>
-            <div className="flex justify-end gap-2 border-t border-white/5 pt-4">
+            <div className="flex justify-end gap-2 border-t border-sand pt-4">
               <button type="button" className={btnGhost} onClick={() => setEditing(null)}>
                 Cancel
               </button>

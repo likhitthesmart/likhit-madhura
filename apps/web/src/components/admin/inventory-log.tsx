@@ -35,10 +35,10 @@ export function InventoryLog({
       {error && <Note>{error}</Note>}
       {data && (
         <div className="space-y-5">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ivory/70">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink/75">
             <span>{sku}</span>
             <span>
-              In stock: <b className="text-ivory">{stock}</b>
+              In stock: <b className="text-ink">{stock}</b>
             </span>
           </div>
 
@@ -49,9 +49,9 @@ export function InventoryLog({
                 { label: "Received", value: `+${received}` },
                 { label: "Removed", value: String(removed) },
               ].map((s) => (
-                <div key={s.label} className="rounded-xl border border-white/10 bg-black/20 px-4 py-3">
-                  <p className="text-[0.65rem] uppercase tracking-widest text-ivory/40">{s.label}</p>
-                  <p className="mt-1 text-lg font-semibold text-ivory">{s.value}</p>
+                <div key={s.label} className="rounded-xl border border-sand bg-black/20 px-4 py-3">
+                  <p className="text-[0.65rem] uppercase tracking-widest text-bark/70">{s.label}</p>
+                  <p className="mt-1 text-lg font-semibold text-ink">{s.value}</p>
                 </div>
               ))}
             </div>
@@ -61,11 +61,11 @@ export function InventoryLog({
             <Table head={["Change", "Reason", "When"]}>
               {logs.map((l) => (
                 <tr key={l.id} className={rowCls}>
-                  <Td className={l.delta >= 0 ? "font-medium text-emerald-300" : "font-medium text-rose-300"}>
+                  <Td className={l.delta >= 0 ? "font-medium text-emerald-700 dark:text-emerald-300" : "font-medium text-rose-700 dark:text-rose-300"}>
                     {l.delta >= 0 ? `+${l.delta}` : l.delta}
                   </Td>
-                  <Td className="text-ivory/60">{l.reason}</Td>
-                  <Td className="whitespace-nowrap text-ivory/50">{new Date(l.at).toLocaleString("en-IN")}</Td>
+                  <Td className="text-bark">{l.reason}</Td>
+                  <Td className="whitespace-nowrap text-bark/80">{new Date(l.at).toLocaleString("en-IN")}</Td>
                 </tr>
               ))}
             </Table>
@@ -74,7 +74,7 @@ export function InventoryLog({
           )}
 
           {/* the endpoint pages at 30; say so rather than silently truncating */}
-          {logs.length === 30 && <p className="text-xs text-ivory/40">Showing the 30 most recent movements.</p>}
+          {logs.length === 30 && <p className="text-xs text-bark/70">Showing the 30 most recent movements.</p>}
         </div>
       )}
     </Modal>
